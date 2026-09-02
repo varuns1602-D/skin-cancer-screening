@@ -1,0 +1,11 @@
+Dx,Class,N,Recall
+akiec,malignant,132,0.8182
+bcc,malignant,498,0.9277
+bkl,benign,420,0.719
+df,benign,43,0.7674
+mel,malignant,665,0.7654
+nv,benign,1939,0.9128
+scc,malignant,98,0.898
+unspec_ben,benign,1217,0.9606
+unspec_mal,malignant,108,0.25
+vasc,benign,37,0.8919

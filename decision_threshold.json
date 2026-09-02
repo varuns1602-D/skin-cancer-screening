@@ -1,0 +1,21 @@
+{
+  "threshold": 0.505,
+  "img_size": 384,
+  "tta": 8,
+  "objective": "f1",
+  "fitted_on": "validation",
+  "backbone": "efficientnetv2s",
+  "meta_dim": 14,
+  "sites": [
+    "head/neck",
+    "upper extremity",
+    "lower extremity",
+    "torso",
+    "palms/soles",
+    "oral/genital",
+    "anterior torso",
+    "posterior torso",
+    "lateral torso",
+    "unknown"
+  ]
+}
