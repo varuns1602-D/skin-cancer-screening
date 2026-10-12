@@ -1,824 +1,1343 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Skin Cancer Screening — Benign vs Malignant</title>
+<title>DermaScan AI — Skin Lesion Screening</title>
+<meta name="description" content="Professional AI-assisted dermoscopic skin cancer screening. Classifies lesions as BENIGN or MALIGNANT with full audit trail.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --ink:#101418; --slate:#3d4852; --muted:#79838c;
-  --line:#d3d9de; --line-soft:#e6eaee;
-  --paper:#fff; --field:#f1f4f6; --shell:#e4e8eb;
-  --benign:#2b6a60; --malign:#96201f; --navy:#1e3a5f;
-  --btn-fg:#fff; --flag-bg:#f1f4f6; --warn-bg:#fbf4ea; --warn-fg:#6b451a;
-  --alert-bg:#f7eded; --alert-fg:#6d2726; --stage:#0e1114;
-  --display:"Archivo",system-ui,sans-serif;
-  --body:"Inter Tight",system-ui,sans-serif;
-  --data:"IBM Plex Mono",ui-monospace,monospace;
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+  --navy-950: #040c1a;
+  --navy-900: #060e1e;
+  --navy-800: #0d1b2e;
+  --navy-700: #122440;
+  --navy-600: #1a3154;
+  --navy-500: #1e3a63;
+  --navy-400: #274d82;
+
+  --teal-600: #0d8f7a;
+  --teal-500: #0fb897;
+  --teal-400: #14d4af;
+  --teal-300: #4ee0c6;
+  --teal-surface: rgba(15,184,151,0.08);
+  --teal-border: rgba(15,184,151,0.25);
+  --teal-glow: rgba(15,184,151,0.2);
+
+  --benign: #0fb897;
+  --benign-bright: #14d4af;
+  --benign-dark: #0a7a66;
+  --benign-surface: rgba(15,184,151,0.08);
+  --benign-surface-strong: rgba(15,184,151,0.16);
+  --benign-border: rgba(15,184,151,0.3);
+  --benign-glow: rgba(15,184,151,0.24);
+
+  --malignant: #ef4444;
+  --malignant-dark: #b91c1c;
+  --malignant-surface: rgba(239,68,68,0.08);
+  --malignant-surface-strong: rgba(239,68,68,0.16);
+  --malignant-border: rgba(239,68,68,0.3);
+  --malignant-glow: rgba(239,68,68,0.24);
+
+  --warn: #f59e0b;
+  --warn-surface: rgba(245,158,11,0.1);
+  --warn-border: rgba(245,158,11,0.35);
+
+  --bg:          #060e1e;
+  --bg2:         #0d1b2e;
+  --surface:     #0d1b2e;
+  --surface-2:   #122440;
+  --surface-3:   #1a3154;
+  --surface-4:   #1e3a63;
+  --border:      rgba(255,255,255,0.08);
+  --border-sub:  rgba(255,255,255,0.04);
+  --border-hi:   rgba(255,255,255,0.15);
+
+  --text-1: #f0f4f8;
+  --text-2: #94a3b8;
+  --text-3: #64748b;
+  --text-inv: #0d1b2e;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+
+  --r-xs: 4px; --r-sm: 6px; --r-md: 10px;
+  --r-lg: 14px; --r-xl: 18px; --r-2xl: 24px;
+
+  --sh-xs: 0 1px 2px rgba(0,0,0,.4);
+  --sh-sm: 0 2px 8px rgba(0,0,0,.5);
+  --sh-md: 0 6px 24px rgba(0,0,0,.6);
+  --sh-lg: 0 16px 48px rgba(0,0,0,.7);
+
+  --t-fast: 150ms cubic-bezier(.4,0,.2,1);
+  --t-med:  250ms cubic-bezier(.4,0,.2,1);
+  --header-h: 64px;
+  --accent: var(--teal-500);
 }
-[data-theme="dark"]{
-  --ink:#e8ecef; --slate:#a8b2ba; --muted:#6f7981;
-  --line:#2b3238; --line-soft:#232a30;
-  --paper:#171c21; --field:#12171b; --shell:#0c1013;
-  --benign:#4a9d8e; --malign:#cf5150; --navy:#7fa8d4;
-  --btn-fg:#0c1013; --flag-bg:#12171b; --warn-bg:#241d12; --warn-fg:#d3a869;
-  --alert-bg:#241416; --alert-fg:#e08a89; --stage:#05070a;
+
+[data-theme="light"] {
+  --bg:         #f0f4f8;
+  --bg2:        #e8edf4;
+  --surface:    #ffffff;
+  --surface-2:  #f4f7fb;
+  --surface-3:  #e8edf4;
+  --surface-4:  #dde4ee;
+  --border:     rgba(13,27,46,.10);
+  --border-sub: rgba(13,27,46,.05);
+  --border-hi:  rgba(13,27,46,.18);
+
+  --text-1: #0d1b2e;
+  --text-2: #374151;
+  --text-3: #6b7280;
+  --text-inv: #ffffff;
+
+  --sh-xs: 0 1px 2px rgba(0,0,0,.06);
+  --sh-sm: 0 2px 8px rgba(0,0,0,.08);
+  --sh-md: 0 6px 24px rgba(0,0,0,.10);
+  --sh-lg: 0 16px 48px rgba(0,0,0,.12);
+
+  --benign:  #059669;
+  --benign-bright: #0fb897;
+  --benign-dark: #047857;
+  --benign-surface: rgba(5,150,105,.08);
+  --benign-surface-strong: rgba(5,150,105,.14);
+  --benign-border: rgba(5,150,105,.28);
+  --benign-glow: rgba(5,150,105,.18);
+
+  --teal-500: #0d8f7a;
+  --teal-400: #0fb897;
+  --teal-surface: rgba(13,143,122,.08);
+  --teal-border: rgba(13,143,122,.25);
+  --teal-glow: rgba(13,143,122,.16);
+  --accent: #0d8f7a;
 }
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{background:var(--shell);color:var(--ink);font-family:var(--body);
-  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;
-  transition:background .25s,color .25s}
-button,input,select{font:inherit;color:inherit}
-h1{margin:0}
 
-/* masthead */
-.masthead{background:var(--paper);border-bottom:1px solid var(--line);
-  padding:12px 30px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.wordmark{display:flex;align-items:baseline;gap:12px}
-.wordmark h1{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:-.012em}
-.wordmark .sub{font-family:var(--data);font-size:10.5px;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.11em}
-.masthead .spacer{flex:1}
-.status{display:flex;align-items:center;gap:8px;font-family:var(--data);
-  font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--slate)}
-.status .dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
-.status[data-state="live"] .dot{background:var(--benign)}
-.status[data-state="demo"] .dot{background:var(--warn-fg)}
-.iconbtn{background:none;border:1px solid var(--line);cursor:pointer;
-  width:32px;height:32px;display:grid;place-items:center;color:var(--slate)}
-.iconbtn:hover{border-color:var(--ink);color:var(--ink)}
-.iconbtn:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
-.iconbtn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.6}
-[data-theme="light"] .moon{display:block}[data-theme="light"] .sun{display:none}
-[data-theme="dark"] .moon{display:none}[data-theme="dark"] .sun{display:block}
+/* ============================================================ BASE ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text-1);line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;min-height:100vh;display:flex;flex-direction:column;transition:background var(--t-med),color var(--t-med)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:var(--r-xs)}
+::selection{background:var(--teal-surface);color:var(--text-1)}
+img{display:block;max-width:100%}
 
-/* layout */
-.workspace{display:grid;grid-template-columns:minmax(340px,.9fr) minmax(0,1.1fr);
-  gap:1px;background:var(--line);min-height:calc(100vh - 50px)}
-.panel{background:var(--paper);padding:24px 30px}
-.panel.case{background:var(--field)}
-.sectlabel{font-family:var(--data);font-size:10.5px;text-transform:uppercase;
-  letter-spacing:.12em;color:var(--muted);display:flex;align-items:center;
-  gap:10px;margin:0 0 13px}
-.sectlabel::after{content:"";flex:1;height:1px;background:var(--line-soft)}
-.sectlabel .hint{font-size:10px;letter-spacing:.06em;text-transform:none;flex:none}
+/* ============================================================ HEADER ============================================================ */
+.app-header{height:var(--header-h);background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--sh-xs)}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0}
+.brand-mark{width:36px;height:36px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--teal-600),var(--navy-400));display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 2px 8px var(--teal-glow);flex-shrink:0}
+.brand-mark svg{width:20px;height:20px;stroke:currentColor;stroke-width:2;fill:none}
+.brand-name{font-size:16px;font-weight:700;letter-spacing:-.03em;color:var(--text-1);line-height:1.2}
+.brand-name span{color:var(--accent)}
+.brand-tag{font-family:var(--font-mono);font-size:10px;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase}
 
-/* plate */
-.plate{position:relative;aspect-ratio:1;width:100%;background:var(--paper);
-  border:1px solid var(--line);display:grid;place-items:center;
-  overflow:hidden;cursor:pointer;transition:border-color .18s}
-.plate:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
-.plate.dragging{border-color:var(--navy);border-style:dashed}
-.plate.loaded{background:var(--stage);cursor:default}
-.plate.loaded.zoomed{cursor:grab}.plate.loaded.zoomed.panning{cursor:grabbing}
-.plate img{width:100%;height:100%;object-fit:contain;display:block;
-  transform-origin:center;will-change:transform,filter}
-.plate .prompt{text-align:center;padding:26px;max-width:280px;pointer-events:none}
-.plate .prompt strong{display:block;font-family:var(--display);font-weight:600;
-  font-size:16px;margin-bottom:6px}
-.plate .prompt span{font-size:13px;color:var(--slate)}
-.plate .prompt .ico{width:34px;height:34px;margin:0 auto 12px;display:block;
-  fill:none;stroke:var(--muted);stroke-width:1.3}
-.scan{position:absolute;inset:0;pointer-events:none;opacity:0;overflow:hidden}
-.plate.busy .scan{opacity:1}
-.scan::after{content:"";position:absolute;left:0;right:0;height:38%;
-  background:linear-gradient(180deg,transparent,rgba(255,255,255,.16),transparent);
-  animation:sweep 1.25s ease-in-out infinite}
-@keyframes sweep{0%{top:-40%}100%{top:100%}}
-.viewtabs{display:flex;gap:0;border:1px solid var(--line);border-top:none;
-  background:var(--paper)}
-.viewtabs button{flex:1;background:none;border:none;padding:8px;cursor:pointer;
-  font-family:var(--data);font-size:10px;text-transform:uppercase;
-  letter-spacing:.08em;color:var(--muted);border-right:1px solid var(--line)}
-.viewtabs button:last-child{border-right:none}
-.viewtabs button[aria-pressed="true"]{background:var(--ink);color:var(--btn-fg)}
-.viewtabs button:disabled{opacity:.35;cursor:not-allowed}
-.viewtabs button:focus-visible{outline:2px solid var(--navy);outline-offset:-2px}
+/* Desktop nav */
+.main-nav{display:flex;align-items:center;gap:2px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-lg);padding:4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;border-radius:var(--r-md);border:none;background:transparent;color:var(--text-3);font-family:var(--font-sans);font-size:13.5px;font-weight:500;cursor:pointer;transition:color var(--t-fast),background var(--t-fast);white-space:nowrap}
+.nav-item svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none;flex-shrink:0}
+.nav-item:hover{color:var(--text-1);background:var(--surface-3)}
+.nav-item.active{background:var(--surface);color:var(--accent);font-weight:600;box-shadow:var(--sh-xs)}
+.nav-badge{font-family:var(--font-mono);font-size:10px;font-weight:600;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--surface-3);color:var(--text-3);display:inline-flex;align-items:center;justify-content:center}
+.nav-item.active .nav-badge{background:var(--teal-surface);color:var(--accent)}
 
-/* tools */
-.tools{border:1px solid var(--line);border-top:none;background:var(--paper);
-  padding:11px 14px;display:none}
-.tools.on{display:block}
-.toolrow{display:flex;align-items:center;gap:12px;padding:4px 0}
-.toolrow label{font-family:var(--data);font-size:10px;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.08em;width:60px;flex:none}
-.toolrow input[type=range]{flex:1;-webkit-appearance:none;appearance:none;
-  height:2px;background:var(--line);outline:none}
-.toolrow input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;
-  width:13px;height:13px;background:var(--ink);cursor:pointer;border-radius:50%}
-.toolrow input[type=range]::-moz-range-thumb{width:13px;height:13px;
-  background:var(--ink);cursor:pointer;border:none;border-radius:50%}
-.toolrow input[type=range]:focus-visible{outline:2px solid var(--navy);outline-offset:4px}
-.toolrow .val{font-family:var(--data);font-size:10.5px;color:var(--slate);
-  width:42px;text-align:right;font-variant-numeric:tabular-nums}
-.toolnote{font-family:var(--data);font-size:9.5px;color:var(--muted);
-  margin-top:8px;padding-top:8px;border-top:1px solid var(--line-soft);
-  display:flex;justify-content:space-between;gap:10px}
-.linkbtn{background:none;border:none;padding:0;cursor:pointer;color:var(--muted);
-  font-family:var(--data);font-size:10px;text-transform:uppercase;
-  letter-spacing:.08em;text-decoration:underline;text-underline-offset:3px}
-.linkbtn:hover{color:var(--ink)}
-.linkbtn:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+/* Header right */
+.header-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.status-pill{display:flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:11px;padding:5px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:999px;color:var(--text-3);white-space:nowrap}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--warn);flex-shrink:0}
+.status-pill[data-status="connected"] .status-dot{background:var(--benign);box-shadow:0 0 6px var(--benign)}
+.status-pill[data-status="error"] .status-dot{background:var(--malignant)}
+.icon-btn{width:34px;height:34px;border-radius:var(--r-sm);background:var(--surface-2);border:1px solid var(--border);color:var(--text-3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:color var(--t-fast),border-color var(--t-fast),background var(--t-fast)}
+.icon-btn:hover{color:var(--text-1);border-color:var(--border-hi);background:var(--surface-3)}
+.icon-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.hamburger-btn{display:none;width:34px;height:34px;border-radius:var(--r-sm);background:var(--surface-2);border:1px solid var(--border);cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:background var(--t-fast)}
+.hamburger-btn span{display:block;width:16px;height:1.5px;background:var(--text-2);border-radius:2px;transition:all var(--t-fast)}
+.hamburger-btn:hover{background:var(--surface-3)}
 
-/* patient context */
-.context{margin-top:20px}
-.ctxgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.field{display:flex;flex-direction:column;gap:4px}
-.field.wide{grid-column:1/-1}
-.field label{font-family:var(--data);font-size:10px;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.08em}
-.field input,.field select{border:1px solid var(--line);background:var(--paper);
-  padding:8px 9px;font-size:14px;width:100%}
-.field input:focus,.field select:focus{outline:2px solid var(--navy);outline-offset:-1px}
-.ctxnote{font-family:var(--data);font-size:9.5px;color:var(--muted);margin-top:9px}
+/* Mobile drawer */
+.mobile-overlay{display:none;position:fixed;inset:0;background:rgba(6,14,30,.6);backdrop-filter:blur(4px);z-index:200;opacity:0;transition:opacity var(--t-med)}
+.mobile-overlay.open{opacity:1}
+.mobile-drawer{position:fixed;top:0;right:0;width:260px;height:100%;background:var(--surface);border-left:1px solid var(--border);padding:20px 14px;display:flex;flex-direction:column;gap:4px;transform:translateX(100%);transition:transform var(--t-med);z-index:201}
+.mobile-drawer.open{transform:translateX(0)}
+.mobile-close-row{display:flex;justify-content:flex-end;margin-bottom:12px}
+.mobile-nav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--r-md);border:none;background:transparent;color:var(--text-2);font-size:14px;font-weight:500;cursor:pointer;text-align:left;width:100%;transition:color var(--t-fast),background var(--t-fast);font-family:var(--font-sans)}
+.mobile-nav-item svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+.mobile-nav-item:hover{background:var(--surface-2);color:var(--text-1)}
+.mobile-nav-item.active{background:var(--teal-surface);color:var(--accent);font-weight:600}
+.mobile-nav-item .nav-badge{margin-left:auto}
 
-.switches{display:flex;gap:16px;margin-top:14px;flex-wrap:wrap}
-.switch{display:flex;align-items:center;gap:7px;font-family:var(--data);
-  font-size:10px;text-transform:uppercase;letter-spacing:.07em;
-  color:var(--slate);cursor:pointer}
-.switch input{width:14px;height:14px;accent-color:var(--navy);cursor:pointer}
+/* ============================================================ VIEWS ============================================================ */
+.view{display:none;flex:1;animation:fadeUp .2s ease forwards}
+.view.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-.meta{margin-top:16px;border-top:1px solid var(--line);
-  font-family:var(--data);font-size:11.5px}
-.meta div{display:flex;justify-content:space-between;gap:16px;
-  padding:7px 0;border-bottom:1px solid var(--line-soft)}
-.meta dt{color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-size:10.5px}
-.meta dd{margin:0;text-align:right;word-break:break-all}
+/* ============================================================ COMMON COMPONENTS ============================================================ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:var(--font-sans);font-size:13px;font-weight:600;padding:9px 18px;border-radius:var(--r-md);border:1px solid transparent;cursor:pointer;transition:all var(--t-fast);white-space:nowrap;text-decoration:none}
+.btn:disabled{opacity:.38;cursor:not-allowed;pointer-events:none}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 8px var(--teal-glow)}
+.btn-primary:hover:not(:disabled){background:var(--teal-600);box-shadow:0 4px 16px var(--teal-glow)}
+.btn-secondary{background:var(--surface-2);border-color:var(--border);color:var(--text-1)}
+.btn-secondary:hover:not(:disabled){border-color:var(--border-hi);background:var(--surface-3)}
+.btn-ghost{background:transparent;border-color:var(--border);color:var(--text-2)}
+.btn-ghost:hover:not(:disabled){border-color:var(--border-hi);color:var(--text-1)}
+.btn-danger-outline{background:transparent;border-color:var(--malignant-border);color:var(--malignant)}
+.btn-danger-outline:hover:not(:disabled){background:var(--malignant-surface)}
+.btn-sm{font-size:12px;padding:6px 12px}
 
-.controls{display:flex;gap:9px;margin-top:18px;flex-wrap:wrap}
-.btn{border:1px solid var(--ink);background:var(--ink);color:var(--btn-fg);
-  padding:11px 19px;cursor:pointer;font-family:var(--data);font-size:11.5px;
-  letter-spacing:.07em;text-transform:uppercase;display:inline-flex;
-  align-items:center;gap:9px;transition:opacity .15s,transform .08s}
-.btn:hover:not(:disabled){opacity:.86}
-.btn:active:not(:disabled){transform:translateY(1px)}
-.btn:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
-.btn:disabled{opacity:.3;cursor:not-allowed}
-.btn.ghost{background:none;color:var(--slate);border-color:var(--line)}
-.btn.ghost:hover:not(:disabled){border-color:var(--ink);color:var(--ink);opacity:1}
-.btn kbd{font-family:var(--data);font-size:9px;opacity:.5;
-  border:1px solid currentColor;padding:0 4px;line-height:1.45}
-.spinner{width:12px;height:12px;border:1.6px solid currentColor;
-  border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;display:none}
-.btn.busy .spinner{display:block}
+.badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 10px;border-radius:var(--r-sm);white-space:nowrap}
+.badge-benign{background:var(--benign-surface);border:1px solid var(--benign-border);color:var(--benign)}
+.badge-malignant{background:var(--malignant-surface);border:1px solid var(--malignant-border);color:var(--malignant)}
+.badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--sh-xs);overflow:hidden}
+.card-header{padding:14px 20px;background:var(--surface-2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.card-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);display:flex;align-items:center;gap:8px}
+.card-title svg{width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2}
+.card-body{padding:20px}
+
+/* ============================================================ PAGE LAYOUT ============================================================ */
+.page-wrap{max-width:1300px;margin:0 auto;padding:32px 24px 64px;display:flex;flex-direction:column;gap:24px}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.page-title{font-size:22px;font-weight:700;letter-spacing:-.025em;color:var(--text-1);line-height:1.2}
+.page-subtitle{font-size:14px;color:var(--text-3);margin-top:4px}
+
+/* ============================================================ INFO BANNER ============================================================ */
+.info-banner{display:flex;align-items:flex-start;gap:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 18px;font-size:13px;color:var(--text-2)}
+.info-banner svg{width:18px;height:18px;stroke:var(--accent);fill:none;stroke-width:2;flex-shrink:0;margin-top:1px}
+.info-banner strong{color:var(--text-1)}
+.info-banner-right{margin-left:auto;flex-shrink:0}
+
+/* ============================================================ STATS ============================================================ */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:22px 24px;display:flex;align-items:center;gap:18px;box-shadow:var(--sh-xs);position:relative;overflow:hidden;transition:box-shadow var(--t-fast)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-xl) var(--r-xl) 0 0}
+.stat-card.stat-total::before{background:var(--accent)}
+.stat-card.stat-benign::before{background:var(--benign)}
+.stat-card.stat-malignant::before{background:var(--malignant)}
+.stat-card:hover{box-shadow:var(--sh-sm)}
+.stat-icon{width:52px;height:52px;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-card.stat-total .stat-icon{background:var(--teal-surface);color:var(--accent)}
+.stat-card.stat-benign .stat-icon{background:var(--benign-surface);color:var(--benign)}
+.stat-card.stat-malignant .stat-icon{background:var(--malignant-surface);color:var(--malignant)}
+.stat-icon svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2}
+.stat-label{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3)}
+.stat-value{font-size:32px;font-weight:700;letter-spacing:-.03em;color:var(--text-1);line-height:1.1;margin:2px 0}
+.stat-sub{font-size:12px;color:var(--text-3)}
+
+/* ============================================================ HISTORY PANEL ============================================================ */
+.history-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--sh-xs)}
+.history-toolbar{padding:16px 20px;background:var(--surface-2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.search-field{display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:8px 12px;flex:1;min-width:200px;max-width:400px;transition:border-color var(--t-fast)}
+.search-field:focus-within{border-color:var(--accent)}
+.search-field svg{width:15px;height:15px;stroke:var(--text-3);fill:none;stroke-width:2;flex-shrink:0}
+.search-input{background:transparent;border:none;outline:none;font-size:13px;color:var(--text-1);width:100%;font-family:var(--font-sans)}
+.search-input::placeholder{color:var(--text-3)}
+.filter-group{display:flex;gap:6px}
+.filter-btn{font-family:var(--font-mono);font-size:11.5px;font-weight:500;padding:6px 12px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface);color:var(--text-3);cursor:pointer;transition:all var(--t-fast);white-space:nowrap}
+.filter-btn:hover{color:var(--text-1);border-color:var(--border-hi)}
+.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.filter-btn[data-filter="benign"].active{background:var(--benign);border-color:var(--benign)}
+.filter-btn[data-filter="malignant"].active{background:var(--malignant);border-color:var(--malignant)}
+
+/* Table */
+.table-wrap{overflow-x:auto}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{padding:12px 18px;background:var(--surface-2);color:var(--text-3);font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);white-space:nowrap;font-weight:600}
+.data-table td{padding:14px 18px;border-bottom:1px solid var(--border-sub);color:var(--text-2);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tbody tr{transition:background var(--t-fast)}
+.data-table tbody tr:hover td{background:var(--surface-2);color:var(--text-1)}
+.cell-id{font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--text-1);white-space:nowrap}
+.cell-thumb{display:flex;align-items:center;gap:10px}
+.thumb-img{width:38px;height:38px;border-radius:var(--r-sm);object-fit:cover;background:var(--surface-3);border:1px solid var(--border);flex-shrink:0}
+.cell-ts{white-space:nowrap;font-family:var(--font-mono);font-size:12px}
+.cell-prob{font-family:var(--font-mono);font-size:12px}
+.cell-prob.prob-hi{font-weight:600;color:var(--malignant)}
+.action-link-btn{font-family:var(--font-mono);font-size:11px;font-weight:600;padding:5px 12px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface-2);color:var(--accent);cursor:pointer;transition:all var(--t-fast);white-space:nowrap;text-decoration:none}
+.action-link-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.empty-row td{text-align:center;padding:56px 20px;color:var(--text-3);font-size:14px}
+
+/* ============================================================ DISCLAIMER ============================================================ */
+.disclaimer{display:flex;gap:12px;align-items:flex-start;background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.18);border-radius:var(--r-lg);padding:16px 20px}
+.disclaimer-icon{width:20px;height:20px;color:var(--malignant);stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;margin-top:1px}
+.disclaimer-text{font-size:13px;line-height:1.6;color:var(--text-2)}
+.disclaimer-text strong{color:var(--text-1)}
+
+/* ============================================================ SCREENING VIEW ============================================================ */
+.screening-grid{max-width:1300px;margin:0 auto;padding:32px 24px 64px;display:grid;grid-template-columns:440px 1fr;gap:24px;align-items:start}
+.col-left{display:flex;flex-direction:column;gap:20px}
+
+/* Drop zone */
+.drop-zone{width:100%;aspect-ratio:4/3;background:var(--surface-2);border:2px dashed var(--border-hi);border-radius:var(--r-lg);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;transition:border-color var(--t-med),background var(--t-med)}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:var(--teal-surface)}
+.dz-content{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:24px;pointer-events:none}
+.upload-icon{width:60px;height:60px;border-radius:50%;background:var(--surface-3);display:flex;align-items:center;justify-content:center;color:var(--accent);margin-bottom:4px;transition:background var(--t-fast)}
+.drop-zone:hover .upload-icon{background:var(--teal-surface)}
+.upload-icon svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2}
+.dz-title{font-size:15px;font-weight:600;color:var(--text-1)}
+.dz-sub{font-size:13px;color:var(--text-3)}
+.chip-row{display:flex;gap:6px;margin-top:4px}
+.chip{font-family:var(--font-mono);font-size:10px;padding:3px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--r-xs);color:var(--text-3)}
+
+/* Preview */
+.preview-wrap{position:absolute;inset:0;background:#000;display:none;align-items:center;justify-content:center;overflow:hidden}
+.preview-wrap.show{display:flex}
+.preview-img{width:100%;height:100%;object-fit:contain;transition:transform var(--t-fast),filter var(--t-fast);user-select:none}
+
+/* Processing overlay */
+.proc-overlay{position:absolute;inset:0;background:rgba(6,14,30,.87);backdrop-filter:blur(6px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10}
+.proc-overlay.show{display:flex}
+.spinner{width:48px;height:48px;border:3px solid rgba(15,184,151,.18);border-top-color:var(--accent);border-radius:50%;animation:spin .75s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.proc-label{font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;color:var(--teal-400);text-transform:uppercase}
 
-/* history */
-.history{margin-top:20px;display:none}.history.on{display:block}
-.strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}
-.strip::-webkit-scrollbar{height:5px}
-.strip::-webkit-scrollbar-thumb{background:var(--line)}
-.thumb{position:relative;flex:none;width:56px;height:56px;padding:0;
-  border:1px solid var(--line);background:var(--stage);cursor:pointer;overflow:hidden}
-.thumb:hover,.thumb.active{border-color:var(--ink)}
-.thumb:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
-.thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.thumb .tag{position:absolute;left:0;right:0;bottom:0;height:4px}
-.thumb .tag[data-call="benign"]{background:var(--benign)}
-.thumb .tag[data-call="malignant"]{background:var(--malign)}
+/* Toolbar */
+.img-toolbar{display:none;flex-direction:column;gap:10px;padding:14px 18px;background:var(--surface-2);border-top:1px solid var(--border)}
+.img-toolbar.show{display:flex}
+.toolbar-row{display:flex;align-items:center;gap:10px}
+.t-lbl{font-family:var(--font-mono);font-size:10px;color:var(--text-3);text-transform:uppercase;width:58px;flex-shrink:0}
+.t-range{flex:1;accent-color:var(--accent);height:4px;cursor:pointer}
+.t-val{font-family:var(--font-mono);font-size:11px;color:var(--text-2);width:40px;text-align:right}
 
-/* verdict */
-.verdict{border:1px solid var(--line);margin-bottom:22px}
-.verdict .band{padding:16px 20px;color:#fff;display:flex;align-items:center;
-  gap:14px;flex-wrap:wrap;background:var(--muted);transition:background .35s}
-.verdict[data-call="malignant"] .band{background:var(--malign)}
-.verdict[data-call="benign"] .band{background:var(--benign)}
-[data-theme="dark"] .verdict .band{color:#0c1013}
-.verdict .call{font-family:var(--display);font-weight:700;
-  font-size:clamp(19px,2.6vw,26px);letter-spacing:-.018em;line-height:1.1}
-.verdict .callnum{margin-left:auto;font-family:var(--data);font-weight:600;
-  font-size:clamp(21px,3vw,28px);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.verdict .callnum small{font-size:.5em;opacity:.75}
-.verdict .body{padding:17px 20px}
+/* Actions */
+.action-row{display:flex;gap:8px;flex-wrap:wrap;padding-top:0}
 
-/* signature: probability axis with the frozen threshold marked */
-.axis{position:relative;margin:4px 0 0}
-.axis .track{height:24px;background:var(--line-soft);position:relative;overflow:hidden}
-.axis .fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--benign);
-  transition:width .6s cubic-bezier(.2,.7,.3,1),background .35s}
-.axis[data-call="malignant"] .fill{background:var(--malign)}
-.axis .thr{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink);
-  transition:left .3s}
-.axis .thrlab{position:absolute;top:-19px;transform:translateX(-50%);
-  font-family:var(--data);font-size:9.5px;color:var(--ink);white-space:nowrap;
-  letter-spacing:.05em;transition:left .3s}
-.axis .ends{display:flex;justify-content:space-between;margin-top:7px;
-  font-family:var(--data);font-size:10px;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.07em}
-.axistitle{font-family:var(--data);font-size:10px;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.08em;margin:0 0 22px}
+/* Patient fields */
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.meta-full{grid-column:1/-1}
+.field-label{display:block;font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:6px}
+.field-input,.field-select{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 12px;font-size:13px;color:var(--text-1);font-family:var(--font-sans);outline:none;transition:border-color var(--t-fast)}
+.field-input:focus,.field-select:focus{border-color:var(--accent)}
+.field-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:32px}
+.options-row{display:flex;gap:18px;margin-top:14px;flex-wrap:wrap}
+.check-label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);cursor:pointer}
+.check-label input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
 
-.flag{margin-top:15px;padding:11px 14px;background:var(--flag-bg);
-  border-left:2px solid var(--slate);font-size:13px;color:var(--slate)}
-.flag[data-level="review"]{border-left-color:var(--warn-fg);
-  background:var(--warn-bg);color:var(--warn-fg)}
+/* Dev panel */
+.dev-panel{background:var(--surface-2);border:1px dashed var(--border-hi);border-radius:var(--r-md);padding:12px 16px}
+.dev-title{font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.dev-title svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+.dev-row{display:flex;gap:8px}
+.dev-btn{flex:1;font-family:var(--font-mono);font-size:11px;padding:7px 10px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface);color:var(--text-3);cursor:pointer;transition:all var(--t-fast);text-align:center}
+.dev-btn:hover{color:var(--text-1);border-color:var(--border-hi)}
+.dev-btn-b:hover{border-color:var(--benign);color:var(--benign)}
+.dev-btn-m:hover{border-color:var(--malignant);color:var(--malignant)}
 
-/* differential */
-.auxnote{font-size:12.5px;color:var(--muted);margin:0 0 12px}
-.diff{width:100%;border-collapse:collapse;font-size:14px}
-.diff th{font-family:var(--data);font-size:10px;font-weight:500;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.09em;text-align:left;
-  padding:0 0 8px;border-bottom:1px solid var(--line)}
-.diff th.num,.diff td.num{text-align:right;font-variant-numeric:tabular-nums}
-.diff td{padding:9px 0;border-bottom:1px solid var(--line-soft);vertical-align:middle}
-.diff tbody tr{opacity:0;animation:rowin .35s ease forwards}
-@keyframes rowin{to{opacity:1}}
-.diff td.num{font-family:var(--data);font-size:13px;color:var(--slate);width:76px}
-.diff td.code{font-family:var(--data);font-size:10.5px;color:var(--muted);
-  letter-spacing:.08em;text-transform:uppercase;width:58px}
-.diff td.tier{width:92px}
-.diff tr.lead td{font-weight:500;color:var(--ink)}
-.diff tr.lead td.num{font-weight:600}
-.chip{font-family:var(--data);font-size:9.5px;letter-spacing:.08em;
-  text-transform:uppercase;padding:2px 7px;color:#fff;white-space:nowrap}
-[data-theme="dark"] .chip{color:#0c1013}
-.chip[data-tier="benign"]{background:var(--benign)}
-.chip[data-tier="malignant"]{background:var(--malign)}
-.microbar{height:3px;background:var(--line-soft);margin-top:5px}
-.microbar i{display:block;height:100%;width:0;background:var(--slate);
-  transition:width .6s cubic-bezier(.2,.7,.3,1)}
+/* Right column */
+.col-right{display:flex;flex-direction:column;gap:20px}
 
-.params{margin-top:22px;font-family:var(--data);font-size:10.5px;color:var(--muted);
-  display:flex;gap:20px;flex-wrap:wrap;border-top:1px solid var(--line-soft);padding-top:12px}
-.disclaimer{margin-top:18px;padding:13px 15px;background:var(--alert-bg);
-  border-left:2px solid var(--malign);font-size:12.5px;color:var(--alert-fg)}
+/* Empty state */
+.empty-state{background:var(--surface);border:1px dashed var(--border-hi);border-radius:var(--r-xl);padding:72px 32px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;min-height:460px}
+.empty-icon{width:68px;height:68px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;color:var(--text-3)}
+.empty-icon svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.5}
+.empty-title{font-size:17px;font-weight:600;color:var(--text-3)}
+.empty-desc{font-size:13.5px;color:var(--text-3);max-width:360px;line-height:1.65}
 
-.toasts{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-  display:flex;flex-direction:column;gap:8px;z-index:50;pointer-events:none}
-.toast{background:var(--ink);color:var(--btn-fg);padding:11px 16px;font-size:13px;
-  max-width:min(460px,90vw);box-shadow:0 6px 24px rgba(0,0,0,.22);
-  animation:toastin .28s cubic-bezier(.2,.8,.3,1)}
-.toast[data-kind="error"]{background:var(--malign);color:#fff}
-@keyframes toastin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-.toast.out{opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* Error card */
+.error-card{display:none;background:var(--malignant-surface);border:1px solid var(--malignant-border);border-radius:var(--r-lg);padding:18px 22px;gap:14px;align-items:flex-start;animation:fadeUp .2s ease}
+.error-card.show{display:flex}
+.error-icon{width:22px;height:22px;color:var(--malignant);flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;margin-top:2px}
+.error-title{font-size:14px;font-weight:700;color:var(--malignant);margin-bottom:4px}
+.error-msg{font-size:13px;color:var(--text-1);line-height:1.5}
+.error-hint{font-family:var(--font-mono);font-size:11px;color:var(--text-3);margin-top:6px}
 
-@media (max-width:920px){.workspace{grid-template-columns:1fr}.panel{padding:22px}}
-@media (prefers-reduced-motion:reduce){
-  *{animation-duration:.001ms!important;animation-iteration-count:1!important;
-    transition-duration:.001ms!important}}
+/* Banners */
+.alert-banner{display:none;border-radius:var(--r-md);padding:10px 16px;font-family:var(--font-mono);font-size:11.5px;align-items:center;gap:10px;animation:fadeUp .2s ease}
+.alert-banner.show{display:flex}
+.alert-banner svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+.alert-warn{background:var(--warn-surface);border:1px solid var(--warn-border);color:var(--warn)}
+.alert-info{background:var(--teal-surface);border:1px solid var(--teal-border);color:var(--teal-400);justify-content:space-between}
+
+/* Result area */
+.result-area{display:none;flex-direction:column;gap:20px;animation:fadeUp .25s ease}
+.result-area.show{display:flex}
+
+/* Verdict card */
+.verdict-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--sh-sm);transition:border-color var(--t-med),box-shadow var(--t-med)}
+.verdict-card[data-cls="benign"]{border-color:var(--benign-border);box-shadow:0 4px 24px var(--benign-glow)}
+.verdict-card[data-cls="malignant"]{border-color:var(--malignant-border);box-shadow:0 4px 24px var(--malignant-glow)}
+.verdict-header{padding:22px 26px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.verdict-card[data-cls="benign"] .verdict-header{background:linear-gradient(135deg,var(--benign-surface-strong),transparent);border-bottom:1px solid var(--benign-border)}
+.verdict-card[data-cls="malignant"] .verdict-header{background:linear-gradient(135deg,var(--malignant-surface-strong),transparent);border-bottom:1px solid var(--malignant-border)}
+.verdict-caption{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);margin-bottom:8px}
+.verdict-badge-row{display:flex;align-items:center;gap:12px}
+.verdict-badge{font-size:24px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:5px 20px;border-radius:var(--r-md);color:#fff}
+.verdict-card[data-cls="benign"] .verdict-badge{background:var(--benign);box-shadow:0 2px 12px var(--benign-glow)}
+.verdict-card[data-cls="malignant"] .verdict-badge{background:var(--malignant);box-shadow:0 2px 12px var(--malignant-glow)}
+.verdict-note{font-size:13px;color:var(--text-2);margin-top:6px;max-width:360px;line-height:1.55}
+.verdict-right{text-align:right}
+.verdict-id-lbl{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:4px}
+.verdict-id-val{font-family:var(--font-mono);font-size:14px;font-weight:600;color:var(--text-1)}
+
+/* Prob grid */
+.prob-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px 26px 10px}
+.prob-box{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 18px;display:flex;flex-direction:column;gap:4px}
+.prob-box.pb-benign{border-left:3px solid var(--benign)}
+.prob-box.pb-malignant{border-left:3px solid var(--malignant)}
+.prob-label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3)}
+.prob-value{font-size:30px;font-weight:700;letter-spacing:-.02em;color:var(--text-1);line-height:1.1}
+.prob-unit{font-size:16px;font-weight:500;color:var(--text-3);margin-left:1px}
+
+/* Threshold bar */
+.thr-section{padding:12px 26px 22px}
+.thr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.thr-label{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3)}
+.thr-chip{font-family:var(--font-mono);font-size:11px;color:var(--accent);background:var(--teal-surface);border:1px solid var(--teal-border);padding:3px 9px;border-radius:var(--r-sm)}
+.bar-track{position:relative;height:20px;background:var(--surface-3);border-radius:999px;overflow:visible;margin-bottom:28px}
+.bar-fill{position:absolute;top:0;bottom:0;left:0;width:0%;border-radius:999px;transition:width .8s cubic-bezier(.2,.8,.3,1)}
+.verdict-card[data-cls="benign"] .bar-fill{background:linear-gradient(90deg,#059669,var(--benign))}
+.verdict-card[data-cls="malignant"] .bar-fill{background:linear-gradient(90deg,var(--malignant-dark),var(--malignant))}
+.thr-pin{position:absolute;top:-7px;bottom:-7px;width:2px;background:var(--text-1);opacity:.9;border-radius:2px;z-index:5;transition:left .3s ease}
+.thr-pin::before{content:'';position:absolute;top:-3px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:var(--text-1)}
+.thr-callout{position:absolute;top:28px;transform:translateX(-50%);font-family:var(--font-mono);font-size:10px;white-space:nowrap;color:var(--text-1);background:var(--surface);border:1px solid var(--border-hi);padding:3px 8px;border-radius:var(--r-sm);box-shadow:var(--sh-xs)}
+.bar-axis{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10.5px;color:var(--text-3)}
+
+/* Details card */
+.details-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 24px}
+.details-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.details-title svg{width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2}
+.details-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.detail-lbl{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:4px}
+.detail-val{font-family:var(--font-mono);font-size:12.5px;color:var(--text-1);font-weight:500;word-break:break-all}
+
+/* Report actions */
+.report-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+
+/* ============================================================ PRINT ============================================================ */
 @media print{
-  body{background:#fff}.workspace{display:block;background:#fff}
-  .panel{padding:16px 0;background:#fff}
-  .controls,.tools,.history,.status,.iconbtn,.toasts,.scan,.viewtabs,.switches{display:none!important}
-  .plate{max-width:290px;border:1px solid #ccc}
-  .field input,.field select{border:none;padding:0}
+  body{background:#fff!important;color:#000!important}
+  .app-header,.col-left,.report-actions,.dev-panel,.toast-wrap,.main-nav,.header-right,.hamburger-btn,.mobile-overlay{display:none!important}
+  .view{display:block!important;animation:none!important}
+  .result-area{display:flex!important}
+  .screening-grid{display:block!important;padding:0!important}
+  .verdict-card,.details-card,.disclaimer{border:1px solid #ccc!important;box-shadow:none!important;page-break-inside:avoid}
+  .verdict-header{background:#f5f5f5!important}
+  .verdict-badge{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .print-hdr{display:block!important;text-align:center;padding:16px 0 24px;border-bottom:2px solid #0d1b2e;margin-bottom:24px}
+  .print-hdr h1{font-size:20px;font-weight:700;color:#0d1b2e}
+  .print-hdr p{font-size:12px;color:#555;margin-top:4px}
 }
+.print-hdr{display:none}
+
+/* ============================================================ RESPONSIVE ============================================================ */
+@media(max-width:1100px){
+  .screening-grid{grid-template-columns:1fr;padding:20px 18px 48px}
+  .stats-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:900px){
+  .main-nav{display:none}
+  .hamburger-btn{display:flex}
+  .status-text{display:none}
+  .stats-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  .app-header{padding:0 14px}
+  .brand-tag{display:none}
+  .page-wrap{padding:16px 14px 48px}
+  .stats-grid{grid-template-columns:1fr}
+  .stat-value{font-size:26px}
+  .screening-grid{padding:16px 14px 48px}
+  .prob-grid{grid-template-columns:1fr}
+  .prob-value{font-size:24px}
+  .verdict-header{padding:16px 18px}
+  .verdict-badge{font-size:20px}
+  .report-actions{justify-content:stretch}
+  .report-actions .btn{flex:1;min-width:0}
+  .history-toolbar{flex-direction:column;align-items:stretch}
+  .search-field{max-width:100%}
+  .filter-group{flex-wrap:wrap}
+  .details-grid{grid-template-columns:1fr 1fr}
+  .info-banner{flex-direction:column;gap:10px}
+  .info-banner-right{align-self:flex-start}
+}
+@media(max-width:400px){
+  .details-grid{grid-template-columns:1fr}
+  .meta-grid{grid-template-columns:1fr}
+  .meta-full{grid-column:1}
+}
+
+/* Toast */
+.toast-wrap{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none}
+.toast{display:flex;align-items:center;gap:9px;background:var(--surface-3);color:var(--text-1);border:1px solid var(--border-hi);border-radius:var(--r-md);padding:11px 16px;font-size:13px;box-shadow:var(--sh-lg);animation:toastIn .22s ease;pointer-events:auto;max-width:360px}
+.toast-success{border-color:var(--benign-border)}
+.toast-error{background:var(--malignant-surface);border-color:var(--malignant-border);color:var(--malignant)}
+.toast svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 </style>
 </head>
 <body>
 
-<header class="masthead">
-  <div class="wordmark">
-    <h1>Skin Cancer Screening</h1>
-    <span class="sub">EfficientNetV2-S · Benign vs Malignant</span>
+<!-- Print header (hidden on screen) -->
+<div class="print-hdr" aria-hidden="true">
+  <h1>DermaScan AI — Skin Lesion Screening Report</h1>
+  <p>For academic research use only. Not a confirmed medical diagnosis.</p>
+</div>
+
+<!-- ============================================================ HEADER ============================================================ -->
+<header class="app-header" role="banner">
+  <a class="brand" href="#" aria-label="DermaScan AI" tabindex="0">
+    <div class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    </div>
+    <div>
+      <div class="brand-name">Derma<span>Scan</span> AI</div>
+      <div class="brand-tag">Dermoscopic · Binary Classification</div>
+    </div>
+  </a>
+
+  <nav class="main-nav" role="navigation" aria-label="Main navigation">
+    <button class="nav-item" id="navDash" aria-current="false">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-item" id="navScreen">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24M14.83 14.83l4.24 4.24M14.83 9.17l4.24-4.24M4.93 19.07l4.24-4.24"/></svg>
+      New Screening
+    </button>
+    <button class="nav-item" id="navHist">
+      <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+      Screening History
+      <span class="nav-badge" id="navBadge">0</span>
+    </button>
+  </nav>
+
+  <div class="header-right">
+    <div class="status-pill" id="statusPill" data-status="checking" role="status" aria-live="polite">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span class="status-text" id="statusText">Checking…</span>
+    </div>
+    <button class="icon-btn" id="themeBtn" aria-label="Toggle light/dark theme" title="Toggle theme">
+      <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <button class="hamburger-btn" id="hamBtn" aria-label="Open navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </div>
-  <span class="spacer"></span>
-  <span class="status" id="status" data-state="checking">
-    <span class="dot"></span><span id="statusText">Checking model</span>
-  </span>
-  <button class="iconbtn" id="themeBtn" aria-label="Switch colour scheme">
-    <svg class="moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg>
-    <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
-  </button>
 </header>
 
-<main class="workspace">
+<!-- Mobile navigation -->
+<div class="mobile-overlay" id="mobileOverlay" role="presentation"></div>
+<div class="mobile-drawer" id="mobileDrawer" aria-hidden="true" role="dialog" aria-label="Navigation">
+  <div class="mobile-close-row">
+    <button class="icon-btn" id="mobileClose" aria-label="Close navigation">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <button class="mobile-nav-item" data-mnav="dashboard">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+    Dashboard
+  </button>
+  <button class="mobile-nav-item" data-mnav="screening">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24M14.83 14.83l4.24 4.24M14.83 9.17l4.24-4.24M4.93 19.07l4.24-4.24"/></svg>
+    New Screening
+  </button>
+  <button class="mobile-nav-item" data-mnav="history">
+    <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+    Screening History
+    <span class="nav-badge" id="mBadge">0</span>
+  </button>
+</div>
 
-  <section class="panel case">
-    <p class="sectlabel">Lesion image <span class="hint" id="shortHint"></span></p>
-
-    <div class="plate" id="plate" role="button" tabindex="0"
-         aria-label="Select a dermoscopic image">
-      <div class="prompt" id="prompt">
-        <svg class="ico" viewBox="0 0 24 24"><path d="M3 16.5V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2.5Z"/><path d="m3 16 5-5 4 4 3-3 5 5"/><circle cx="15" cy="8" r="1.6"/></svg>
-        <strong>Load dermoscopic image</strong>
-        <span>Drop a file, paste from clipboard, or click to browse.</span>
+<!-- ============================================================ VIEW: DASHBOARD ============================================================ -->
+<section class="view" id="vDashboard" role="main" aria-label="Dashboard">
+  <div class="page-wrap">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Screening Dashboard</h1>
+        <p class="page-subtitle">Aggregate statistics and audit trail for all lesion screenings.</p>
       </div>
-      <img id="preview" alt="" hidden draggable="false">
-      <div class="scan" aria-hidden="true"></div>
-    </div>
-
-    <div class="viewtabs" id="viewtabs">
-      <button id="tabImage" aria-pressed="true" disabled>Lesion</button>
-      <button id="tabCam" aria-pressed="false" disabled>Grad-CAM</button>
-    </div>
-
-    <div class="tools" id="tools">
-      <div class="toolrow">
-        <label for="zoomR">Zoom</label>
-        <input type="range" id="zoomR" min="100" max="400" value="100" step="10">
-        <span class="val" id="zoomV">1.0×</span>
-      </div>
-      <div class="toolrow">
-        <label for="brightR">Bright</label>
-        <input type="range" id="brightR" min="50" max="180" value="100">
-        <span class="val" id="brightV">100%</span>
-      </div>
-      <div class="toolrow">
-        <label for="contR">Contrast</label>
-        <input type="range" id="contR" min="50" max="220" value="100">
-        <span class="val" id="contV">100%</span>
-      </div>
-      <div class="toolnote">
-        <span>Display only — never reaches the model.</span>
-        <button class="linkbtn" id="resetTools">Reset view</button>
-      </div>
-    </div>
-
-    <input type="file" id="fileInput" accept="image/*" hidden>
-
-    <div class="context">
-      <p class="sectlabel">Patient context</p>
-      <div class="ctxgrid">
-        <div class="field">
-          <label for="ageIn">Age</label>
-          <input type="number" id="ageIn" min="0" max="120" placeholder="unknown">
-        </div>
-        <div class="field">
-          <label for="sexIn">Sex</label>
-          <select id="sexIn">
-            <option value="">Unknown</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-        </div>
-        <div class="field wide">
-          <label for="siteIn">Anatomical site</label>
-          <select id="siteIn"><option value="unknown">Unknown</option></select>
-        </div>
-      </div>
-      <p class="ctxnote">
-        Fused into the model alongside the image. Leave blank when genuinely unknown —
-        the network has an explicit slot for missing values.
-      </p>
-      <div class="switches">
-        <label class="switch"><input type="checkbox" id="ttaIn" checked> 8× TTA</label>
-        <label class="switch"><input type="checkbox" id="camIn"> Grad-CAM</label>
-      </div>
-    </div>
-
-    <dl class="meta" id="meta" hidden>
-      <div><dt>Case ref</dt><dd id="mRef">—</dd></div>
-      <div><dt>Assessed</dt><dd id="mTime">—</dd></div>
-      <div><dt>Source file</dt><dd id="mFile">—</dd></div>
-      <div><dt>Resolution</dt><dd id="mRes">—</dd></div>
-    </dl>
-
-    <div class="controls">
-      <button class="btn" id="runBtn" disabled>
-        <span class="spinner"></span><span id="runLabel">Run screening</span><kbd>↵</kbd>
+      <button class="btn btn-secondary btn-sm" id="dashNewBtn">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        New Screening
       </button>
-      <button class="btn ghost" id="copyBtn" disabled>Copy</button>
-      <button class="btn ghost" id="printBtn" disabled>Save report</button>
-      <button class="btn ghost" id="clearBtn" disabled>Clear</button>
     </div>
 
-    <div class="history" id="history">
-      <p class="sectlabel">Session <span class="hint" id="histCount"></span></p>
-      <div class="strip" id="strip"></div>
-    </div>
-  </section>
-
-  <section class="panel">
-    <p class="sectlabel">Screening result</p>
-
-    <div class="verdict" id="verdict">
-      <div class="band">
-        <span class="call" id="call">No screening yet</span>
-        <span class="callnum" id="callnum" hidden>0<small>%</small></span>
+    <div class="info-banner" role="note">
+      <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
+      <div>
+        <strong>IndexedDB Local Storage Active:</strong> Screening records are persisted locally and survive page refreshes.
+        <span style="display:block;font-size:12px;color:var(--text-3);margin-top:2px;">Data is stored only in this browser. It is not shared across different browsers or remote clients.</span>
       </div>
-      <div class="body">
-        <p class="axistitle">Predicted probability of malignancy</p>
-        <div class="axis" id="axis">
-          <span class="thrlab" id="thrLab" style="left:50%">threshold</span>
-          <div class="track">
-            <span class="fill" id="fill"></span>
-          </div>
-          <span class="thr" id="thrTick" style="left:50%"></span>
-          <div class="ends"><span>0 — benign</span><span>malignant — 1</span></div>
+      <div class="info-banner-right">
+        <button class="btn btn-ghost btn-sm" id="clearBtn">Clear History</button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card stat-total">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <div><div class="stat-label">Total Screenings</div><div class="stat-value" id="dTotal">0</div><div class="stat-sub">Verified audit records</div></div>
+      </div>
+      <div class="stat-card stat-benign">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+        <div><div class="stat-label">Benign Results</div><div class="stat-value" id="dBenign">0</div><div class="stat-sub" id="dBenignPct">0.0% of total</div></div>
+      </div>
+      <div class="stat-card stat-malignant">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div><div class="stat-label">Malignant Results</div><div class="stat-value" id="dMalignant">0</div><div class="stat-sub" id="dMalignantPct">0.0% of total</div></div>
+      </div>
+    </div>
+
+    <div class="history-panel">
+      <div class="history-toolbar">
+        <div class="search-field">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="search-input" id="dSearch" placeholder="Search by ID or filename…" aria-label="Search records">
         </div>
-        <div class="flag" id="flag">Load an image and run screening to see the result.</div>
+        <div class="filter-group" role="group" aria-label="Filter by classification">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="benign">Benign</button>
+          <button class="filter-btn" data-filter="malignant">Malignant</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" aria-label="Screening history">
+          <thead><tr>
+            <th scope="col">Screening ID</th><th scope="col">Date &amp; Time</th>
+            <th scope="col">Image / File</th><th scope="col">Classification</th>
+            <th scope="col">Benign %</th><th scope="col">Malignant %</th>
+            <th scope="col" style="text-align:right">Actions</th>
+          </tr></thead>
+          <tbody id="dTableBody">
+            <tr class="empty-row"><td colspan="7">No records yet. Complete a screening to populate history.</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <div class="params" id="params"><span>Model — not attached</span></div>
+    <div class="disclaimer" role="note">
+      <svg class="disclaimer-icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <p class="disclaimer-text"><strong>Medical Disclaimer:</strong> AI screening results are for academic research only. This system does not provide a confirmed medical diagnosis. Always consult a qualified dermatologist for clinical assessment.</p>
+    </div>
+  </div>
+</section>
 
-    <div class="disclaimer">
-      <strong>Screening aid, not a diagnostic device.</strong> Built for research and
-      academic evaluation. The output is a probability from a trained network, not a
-      clinical finding. A benign result does not rule out malignancy, and any
-      suspicious lesion needs assessment by a qualified dermatologist.
+<!-- ============================================================ VIEW: NEW SCREENING ============================================================ -->
+<section class="view" id="vScreening" role="main" aria-label="New Screening">
+  <div class="screening-grid">
+    <aside class="col-left" aria-label="Image upload and patient information">
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Dermoscopic Image
+          </span>
+          <span id="fileBadge" style="font-family:var(--font-mono);font-size:11px;color:var(--text-3);">No file loaded</span>
+        </div>
+        <div class="card-body" style="padding-bottom:0">
+          <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Upload lesion image — click or drag and drop">
+            <div class="dz-content" id="dzContent">
+              <div class="upload-icon">
+                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <div class="dz-title">Click to browse or drop image</div>
+              <div class="dz-sub">Dermoscopic PNG, JPG, or JPEG</div>
+              <div class="chip-row">
+                <span class="chip">PNG</span><span class="chip">JPG</span><span class="chip">JPEG</span>
+              </div>
+            </div>
+            <div class="preview-wrap" id="previewWrap">
+              <img id="previewImg" class="preview-img" alt="Uploaded lesion preview">
+            </div>
+            <div class="proc-overlay" id="procOverlay">
+              <div class="spinner" role="status" aria-label="Analyzing image"></div>
+              <div class="proc-label" id="procLabel">Analyzing Lesion…</div>
+            </div>
+          </div>
+
+          <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,image/png,image/jpeg" hidden aria-label="Select image file">
+
+          <div class="img-toolbar" id="imgToolbar">
+            <div class="toolbar-row">
+              <span class="t-lbl">Zoom</span>
+              <input type="range" class="t-range" id="zoomRange" min="100" max="300" value="100" aria-label="Zoom">
+              <span class="t-val" id="zoomVal">1.0×</span>
+            </div>
+            <div class="toolbar-row">
+              <span class="t-lbl">Bright</span>
+              <input type="range" class="t-range" id="brightRange" min="60" max="160" value="100" aria-label="Brightness">
+              <span class="t-val" id="brightVal">100%</span>
+            </div>
+            <div class="toolbar-row">
+              <span class="t-lbl">Contrast</span>
+              <input type="range" class="t-range" id="contrastRange" min="60" max="180" value="100" aria-label="Contrast">
+              <span class="t-val" id="contrastVal">100%</span>
+            </div>
+          </div>
+
+          <div class="action-row" style="padding:16px 0 20px">
+            <button class="btn btn-primary" id="analyzeBtn" disabled style="flex:1">
+              <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              <span id="analyzeTxt">Analyze Image</span>
+            </button>
+            <button class="btn btn-secondary" id="uploadAgainBtn" disabled title="Upload another image">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </button>
+            <button class="btn btn-danger-outline" id="removeBtn" disabled title="Remove image">
+              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Patient Context
+          </span>
+          <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em">Optional</span>
+        </div>
+        <div class="card-body">
+          <div class="meta-grid">
+            <div>
+              <label class="field-label" for="pAge">Age</label>
+              <input type="number" id="pAge" class="field-input" min="0" max="120" placeholder="e.g. 52">
+            </div>
+            <div>
+              <label class="field-label" for="pSex">Sex</label>
+              <select id="pSex" class="field-select">
+                <option value="">Unspecified</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <div class="meta-full">
+              <label class="field-label" for="pSite">Anatomical Site</label>
+              <select id="pSite" class="field-select">
+                <option value="unknown">Unknown / Not specified</option>
+                <option value="head/neck">Head / Neck</option>
+                <option value="upper extremity">Upper extremity</option>
+                <option value="lower extremity">Lower extremity</option>
+                <option value="torso">Torso</option>
+                <option value="anterior torso">Anterior torso</option>
+                <option value="posterior torso">Posterior torso</option>
+                <option value="lateral torso">Lateral torso</option>
+                <option value="palms/soles">Palms / Soles</option>
+                <option value="oral/genital">Oral / Genital</option>
+              </select>
+            </div>
+          </div>
+          <div class="options-row">
+            <label class="check-label"><input type="checkbox" id="ttaChk" checked><span>8× Test-Time Augmentation</span></label>
+            <label class="check-label"><input type="checkbox" id="gcChk"><span>Grad-CAM Map</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="dev-panel">
+        <div class="dev-title">
+          <svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          Controlled Frontend Tests
+        </div>
+        <div class="dev-row">
+          <button class="dev-btn dev-btn-b" id="testBenign">Test: BENIGN</button>
+          <button class="dev-btn dev-btn-m" id="testMalignant">Test: MALIGNANT</button>
+        </div>
+      </div>
+    </aside>
+
+    <section class="col-right" aria-label="Screening results" aria-live="polite">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="empty-title">Awaiting Lesion Screening</div>
+        <p class="empty-desc">Upload a dermoscopic image on the left and click <strong>Analyze Image</strong> to receive the binary classification result.</p>
+      </div>
+
+      <div class="error-card" id="errorCard" role="alert" aria-live="assertive">
+        <svg class="error-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div>
+          <div class="error-title" id="errTitle">Screening Failed</div>
+          <div class="error-msg" id="errMsg">An unexpected error occurred.</div>
+          <div class="error-hint" id="errHint">Ensure the Flask backend is running on 127.0.0.1:5000.</div>
+        </div>
+      </div>
+
+      <div class="alert-banner alert-warn" id="testBanner" role="alert">
+        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>CONTROLLED FRONTEND TEST — NOT AN ACTUAL MODEL PREDICTION</span>
+      </div>
+
+      <div class="alert-banner alert-info" id="histBanner" role="status">
+        <div style="display:flex;align-items:center;gap:8px">
+          <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+          <span>VIEWING HISTORICAL RECORD — NO NEW INFERENCE RUN</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="exitHistBtn">Return to Current</button>
+      </div>
+
+      <div class="result-area" id="resultArea">
+        <div class="verdict-card" id="verdictCard" data-cls="benign">
+          <div class="verdict-header">
+            <div>
+              <div class="verdict-caption">Authoritative Classification</div>
+              <div class="verdict-badge-row">
+                <div class="verdict-badge" id="vBadge">BENIGN</div>
+              </div>
+              <div class="verdict-note" id="vNote">Negative for malignancy based on fitted decision threshold.</div>
+            </div>
+            <div class="verdict-right">
+              <div class="verdict-id-lbl">Screening ID</div>
+              <div class="verdict-id-val" id="vId">SC-00000000-00000000</div>
+            </div>
+          </div>
+
+          <div class="prob-grid">
+            <div class="prob-box pb-benign">
+              <span class="prob-label">Benign Probability</span>
+              <div class="prob-value" id="pBenign">0.00<span class="prob-unit">%</span></div>
+            </div>
+            <div class="prob-box pb-malignant">
+              <span class="prob-label">Malignant Probability</span>
+              <div class="prob-value" id="pMalignant">0.00<span class="prob-unit">%</span></div>
+            </div>
+          </div>
+
+          <div class="thr-section">
+            <div class="thr-row">
+              <span class="thr-label">Malignancy Probability vs Decision Threshold</span>
+              <span class="thr-chip" id="thrChip">Threshold: 0.505 (50.5%)</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" id="barFill"></div>
+              <div class="thr-pin" id="thrPin" style="left:50.5%">
+                <div class="thr-callout" id="thrCallout">0.505</div>
+              </div>
+            </div>
+            <div class="bar-axis">
+              <span>0% — Benign</span>
+              <span>Malignant — 100%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-card">
+          <div class="details-title">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Screening Record Details
+          </div>
+          <div class="details-grid">
+            <div><div class="detail-lbl">Screening ID</div><div class="detail-val" id="mId">—</div></div>
+            <div><div class="detail-lbl">Timestamp</div><div class="detail-val" id="mTs">—</div></div>
+            <div><div class="detail-lbl">Filename</div><div class="detail-val" id="mFile">—</div></div>
+            <div><div class="detail-lbl">Decision Threshold</div><div class="detail-val" id="mThr">—</div></div>
+            <div><div class="detail-lbl">Patient Context</div><div class="detail-val" id="mPat">—</div></div>
+            <div><div class="detail-lbl">Inference Mode</div><div class="detail-val" id="mMode">8× TTA</div></div>
+          </div>
+        </div>
+
+        <div class="report-actions">
+          <button class="btn btn-secondary btn-sm" id="copyBtn">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy Report
+          </button>
+          <button class="btn btn-secondary btn-sm" id="printBtn">
+            <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Print / Save PDF
+          </button>
+          <button class="btn btn-primary btn-sm" id="viewHistBtn" style="flex:none">
+            <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            View in History
+          </button>
+        </div>
+
+        <div class="disclaimer" role="note">
+          <svg class="disclaimer-icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <p class="disclaimer-text"><strong>Medical Disclaimer:</strong> AI screening result for academic research only. This is not a confirmed medical diagnosis. Consult a qualified dermatologist for clinical assessment.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- ============================================================ VIEW: HISTORY ============================================================ -->
+<section class="view" id="vHistory" role="main" aria-label="Screening History">
+  <div class="page-wrap">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Screening History</h1>
+        <p class="page-subtitle">All local audit records. Click <em>View Report</em> to load a saved result.</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="clearBtn2">Clear All Records</button>
     </div>
 
-    <p class="sr" id="live" role="status" aria-live="polite"></p>
-  </section>
-</main>
+    <div class="history-panel">
+      <div class="history-toolbar">
+        <div class="search-field">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="search-input" id="hSearch" placeholder="Search by ID or filename…" aria-label="Search records">
+        </div>
+        <div class="filter-group" role="group" aria-label="Filter classification">
+          <button class="filter-btn active" data-filter="all" id="hfAll">All</button>
+          <button class="filter-btn" data-filter="benign" id="hfBenign">Benign</button>
+          <button class="filter-btn" data-filter="malignant" id="hfMalignant">Malignant</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" aria-label="Full screening history">
+          <thead><tr>
+            <th scope="col">Screening ID</th><th scope="col">Date &amp; Time</th>
+            <th scope="col">Image / File</th><th scope="col">Classification</th>
+            <th scope="col">Benign %</th><th scope="col">Malignant %</th>
+            <th scope="col" style="text-align:right">Actions</th>
+          </tr></thead>
+          <tbody id="hTableBody">
+            <tr class="empty-row"><td colspan="7">No records yet. Complete a screening to populate history.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-<div class="toasts" id="toasts"></div>
+    <div class="disclaimer" role="note">
+      <svg class="disclaimer-icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <p class="disclaimer-text"><strong>Medical Disclaimer:</strong> AI screening results are for academic research only. Not a confirmed medical diagnosis.</p>
+    </div>
+  </div>
+</section>
+
+<div class="toast-wrap" id="toastWrap" aria-live="assertive" aria-atomic="true"></div>
 
 <script>
-/* ===== configuration ================================================ */
-const API_BASE = "";
-/* Auxiliary head order from the notebook (DX8). MALIGNANT = mel, bcc, scc, akiec. */
-const DX = [
-  { code:"mel",   name:"Melanoma",                                      tier:"malignant" },
-  { code:"nv",    name:"Melanocytic nevus",                             tier:"benign"    },
-  { code:"bcc",   name:"Basal cell carcinoma",                          tier:"malignant" },
-  { code:"akiec", name:"Actinic keratosis / intraepithelial carcinoma", tier:"malignant" },
-  { code:"bkl",   name:"Benign keratosis-like lesion",                  tier:"benign"    },
-  { code:"df",    name:"Dermatofibroma",                                tier:"benign"    },
-  { code:"vasc",  name:"Vascular lesion",                               tier:"benign"    },
-  { code:"scc",   name:"Squamous cell carcinoma",                       tier:"malignant" },
-];
-const SITES = ["head/neck","upper extremity","lower extremity","torso","palms/soles",
-               "oral/genital","anterior torso","posterior torso","lateral torso","unknown"];
-/* How close to the threshold counts as borderline. */
-const BORDERLINE = 0.08;
-const MAX_HISTORY = 8;
+(() => {
+  'use strict';
+  const SVG_BEN = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="384" height="288"><rect width="384" height="288" fill="#2b1d14"/><ellipse cx="192" cy="144" rx="100" ry="80" fill="#6e4730"/><circle cx="192" cy="144" r="46" fill="#452b1b"/><text x="192" y="262" fill="#a08573" font-family="sans-serif" font-size="14" text-anchor="middle">Controlled Test: BENIGN</text></svg>');
+  const SVG_MAL = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="384" height="288"><rect width="384" height="288" fill="#241818"/><path d="M110 140 Q120 85 192 90 Q265 85 265 150 Q280 210 205 218 Q125 228 110 140 Z" fill="#3b1212"/><circle cx="180" cy="150" r="42" fill="#1a0505"/><text x="192" y="262" fill="#b87474" font-family="sans-serif" font-size="14" text-anchor="middle">Controlled Test: MALIGNANT</text></svg>');
 
-/* ===== refs ========================================================= */
-const $ = id => document.getElementById(id);
-const plate=$("plate"), fileInput=$("fileInput"), preview=$("preview"), prompt=$("prompt");
-const tools=$("tools"), zoomR=$("zoomR"), brightR=$("brightR"), contR=$("contR");
-const zoomV=$("zoomV"), brightV=$("brightV"), contV=$("contV"), resetTools=$("resetTools");
-const tabImage=$("tabImage"), tabCam=$("tabCam");
-const ageIn=$("ageIn"), sexIn=$("sexIn"), siteIn=$("siteIn"), ttaIn=$("ttaIn"), camIn=$("camIn");
-const runBtn=$("runBtn"), runLabel=$("runLabel"), clearBtn=$("clearBtn");
-const printBtn=$("printBtn"), copyBtn=$("copyBtn");
-const meta=$("meta"), mRef=$("mRef"), mTime=$("mTime"), mFile=$("mFile"), mRes=$("mRes");
-const verdict=$("verdict"), call=$("call"), callnum=$("callnum");
-const axis=$("axis"), fill=$("fill"), thrTick=$("thrTick"), thrLab=$("thrLab"), flag=$("flag");
-const diffBody=$("diffBody"), params=$("params"), live=$("live");
-const statusEl=$("status"), statusText=$("statusText"), themeBtn=$("themeBtn");
-const history=$("history"), strip=$("strip"), histCount=$("histCount");
-const toasts=$("toasts"), shortHint=$("shortHint");
+  const DB_NAME='DermaScanAI_DB',DB_VER=1,STORE='screening_records';
+  let db=null,recs=[],dFilt='all',hFilt='all',dSrch='',hSrch='';
+  let threshold=0.505,curFile=null,curObjUrl=null,curDataUrl=null,viewingHist=false,lastRes=null;
 
-let currentFile=null, backendLive=false, modelName=null;
-let THRESHOLD=0.5, thresholdSource="default";
-let lastResult=null, session=[], imgUrl=null, camUrl=null;
-let view={zoom:1,bright:100,contrast:100,x:0,y:0};
+  const $=id=>document.getElementById(id);
+  const qsa=(sel,ctx=document)=>[...ctx.querySelectorAll(sel)];
 
-SITES.forEach(s=>{
-  const o=document.createElement("option");
-  o.value=s; o.textContent=s.charAt(0).toUpperCase()+s.slice(1);
-  if(s==="unknown") o.selected=true;
-  siteIn.appendChild(o);
-});
+  /* Nav */
+  const navDash=$('navDash'),navScreen=$('navScreen'),navHist=$('navHist');
+  const vDashboard=$('vDashboard'),vScreening=$('vScreening'),vHistory=$('vHistory');
+  const navBadge=$('navBadge'),mBadge=$('mBadge');
+  const hamBtn=$('hamBtn'),mobileOverlay=$('mobileOverlay'),mobileDrawer=$('mobileDrawer'),mobileClose=$('mobileClose');
+  const themeBtn=$('themeBtn');
+  const statusPill=$('statusPill'),statusText=$('statusText');
 
-/* ===== theme ======================================================== */
-const root=document.documentElement;
-if(matchMedia("(prefers-color-scheme: dark)").matches) root.dataset.theme="dark";
-themeBtn.addEventListener("click",()=>{
-  root.dataset.theme = root.dataset.theme==="dark" ? "light" : "dark";
-});
+  /* Dashboard */
+  const dTotal=$('dTotal'),dBenign=$('dBenign'),dMalignant=$('dMalignant'),dBenignPct=$('dBenignPct'),dMalignantPct=$('dMalignantPct');
+  const dTableBody=$('dTableBody'),dSearch=$('dSearch'),dashNewBtn=$('dashNewBtn'),clearBtn=$('clearBtn'),clearBtn2=$('clearBtn2');
 
-/* ===== backend health =============================================== */
-(async function(){
-  try{
-    const r=await fetch(API_BASE+"/health",{cache:"no-store"});
-    if(!r.ok) throw 0;
-    const info=await r.json();
-    backendLive=true; modelName=info.model||"attached";
-    if(typeof info.threshold==="number"){
-      THRESHOLD=info.threshold;
-      thresholdSource=info.threshold_source||"model config";
-    }
-    setStatus("live","Model attached");
-    if(/default/i.test(thresholdSource))
-      toast("No decision_threshold.json found — using 0.5, not your fitted operating point.","error");
-  }catch{
-    backendLive=false;
-    setStatus("demo","Demo mode — no model");
-    toast("Running in demo mode. Start app.py with the model to get real predictions.");
-  }
-  placeThreshold();
-})();
-function setStatus(s,t){ statusEl.dataset.state=s; statusText.textContent=t; }
-function placeThreshold(){
-  const pct=(THRESHOLD*100).toFixed(1)+"%";
-  thrTick.style.left=pct; thrLab.style.left=pct;
-  thrLab.textContent="t = "+THRESHOLD.toFixed(3);
-}
+  /* History */
+  const hTableBody=$('hTableBody'),hSearch=$('hSearch'),hfAll=$('hfAll'),hfBenign=$('hfBenign'),hfMalignant=$('hfMalignant');
 
-/* ===== keyboard ===================================================== */
-shortHint.textContent="O open · ↵ run · Esc clear";
-window.addEventListener("keydown",e=>{
-  if(e.target.matches("input,textarea,select")) return;
-  if(e.key.toLowerCase()==="o"){ e.preventDefault(); fileInput.click(); }
-  if(e.key==="Enter" && !runBtn.disabled && document.activeElement!==plate){
-    e.preventDefault(); runBtn.click();
-  }
-  if(e.key==="Escape" && !clearBtn.disabled) clearBtn.click();
-});
+  /* Screening */
+  const dropZone=$('dropZone'),dzContent=$('dzContent'),fileInput=$('fileInput');
+  const previewWrap=$('previewWrap'),previewImg=$('previewImg'),procOverlay=$('procOverlay'),procLabel=$('procLabel');
+  const fileBadge=$('fileBadge'),imgToolbar=$('imgToolbar');
+  const zoomRange=$('zoomRange'),brightRange=$('brightRange'),contrastRange=$('contrastRange');
+  const zoomVal=$('zoomVal'),brightVal=$('brightVal'),contrastVal=$('contrastVal');
+  const analyzeBtn=$('analyzeBtn'),analyzeTxt=$('analyzeTxt'),uploadAgainBtn=$('uploadAgainBtn'),removeBtn=$('removeBtn');
+  const pAge=$('pAge'),pSex=$('pSex'),pSite=$('pSite'),ttaChk=$('ttaChk'),gcChk=$('gcChk');
+  const testBenign=$('testBenign'),testMalignant=$('testMalignant');
+  const emptyState=$('emptyState'),errorCard=$('errorCard'),errTitle=$('errTitle'),errMsg=$('errMsg'),errHint=$('errHint');
+  const testBanner=$('testBanner'),histBanner=$('histBanner'),resultArea=$('resultArea');
+  const verdictCard=$('verdictCard'),vBadge=$('vBadge'),vNote=$('vNote'),vId=$('vId');
+  const pBenign=$('pBenign'),pMalignant=$('pMalignant'),thrChip=$('thrChip'),barFill=$('barFill'),thrPin=$('thrPin'),thrCallout=$('thrCallout');
+  const mId=$('mId'),mTs=$('mTs'),mFile=$('mFile'),mThr=$('mThr'),mPat=$('mPat'),mMode=$('mMode');
+  const copyBtn=$('copyBtn'),printBtn=$('printBtn'),viewHistBtn=$('viewHistBtn'),exitHistBtn=$('exitHistBtn');
+  const toastWrap=$('toastWrap');
 
-/* ===== file intake ================================================== */
-plate.addEventListener("click",()=>{ if(!plate.classList.contains("loaded")) fileInput.click(); });
-plate.addEventListener("keydown",e=>{
-  if(e.key==="Enter"||e.key===" "){ e.preventDefault(); fileInput.click(); }
-});
-fileInput.addEventListener("change",e=>{ if(e.target.files[0]) load(e.target.files[0]); });
-["dragenter","dragover"].forEach(ev=>plate.addEventListener(ev,e=>{
-  e.preventDefault(); plate.classList.add("dragging"); }));
-["dragleave","drop"].forEach(ev=>plate.addEventListener(ev,e=>{
-  e.preventDefault(); plate.classList.remove("dragging"); }));
-plate.addEventListener("drop",e=>{ const f=e.dataTransfer.files[0]; if(f) load(f); });
-window.addEventListener("paste",e=>{
-  const i=[...(e.clipboardData?.items||[])].find(x=>x.type.startsWith("image/"));
-  if(i){ load(i.getAsFile()); toast("Image pasted from clipboard."); }
-});
+  /* ── Boot ── */
+  initTheme(); openDB(); checkHealth(); switchView('dashboard');
 
-function load(file){
-  if(!file.type.startsWith("image/")){
-    toast("That file isn't an image. Load a JPG or PNG.","error"); return;
-  }
-  currentFile=file;
-  imgUrl=URL.createObjectURL(file); camUrl=null;
-  showView("image");
-  preview.hidden=false; prompt.hidden=true;
-  plate.classList.add("loaded"); tools.classList.add("on");
-  tabImage.disabled=false; tabCam.disabled=true;
-  resetView();
-  preview.onload=()=>{
-    meta.hidden=false;
-    mRef.textContent=caseRef(); mTime.textContent="—";
-    mFile.textContent=trim(file.name,30);
-    mRes.textContent=preview.naturalWidth+" × "+preview.naturalHeight+" px";
-  };
-  runBtn.disabled=false; clearBtn.disabled=false;
-  printBtn.disabled=true; copyBtn.disabled=true;
-  resetResult(); markActiveThumb(null);
-}
-
-clearBtn.addEventListener("click",()=>{
-  currentFile=null; lastResult=null; fileInput.value=""; imgUrl=camUrl=null;
-  preview.hidden=true; preview.removeAttribute("src");
-  prompt.hidden=false; plate.classList.remove("loaded","zoomed");
-  tools.classList.remove("on"); meta.hidden=true;
-  tabImage.disabled=true; tabCam.disabled=true;
-  runBtn.disabled=true; clearBtn.disabled=true;
-  printBtn.disabled=true; copyBtn.disabled=true;
-  resetView(); resetResult(); markActiveThumb(null);
-});
-printBtn.addEventListener("click",()=>window.print());
-
-/* ===== view tabs ==================================================== */
-function showView(which){
-  const cam = which==="cam" && camUrl;
-  preview.src = cam ? camUrl : (imgUrl||"");
-  tabImage.setAttribute("aria-pressed", cam?"false":"true");
-  tabCam.setAttribute("aria-pressed", cam?"true":"false");
-}
-tabImage.addEventListener("click",()=>showView("image"));
-tabCam.addEventListener("click",()=>showView("cam"));
-
-/* ===== inspection tools ============================================= */
-function applyView(){
-  preview.style.transform=`scale(${view.zoom}) translate(${view.x}px,${view.y}px)`;
-  preview.style.filter=`brightness(${view.bright}%) contrast(${view.contrast}%)`;
-  zoomV.textContent=view.zoom.toFixed(1)+"×";
-  brightV.textContent=view.bright+"%"; contV.textContent=view.contrast+"%";
-  plate.classList.toggle("zoomed",view.zoom>1);
-}
-function resetView(){
-  view={zoom:1,bright:100,contrast:100,x:0,y:0};
-  zoomR.value=100; brightR.value=100; contR.value=100; applyView();
-}
-zoomR.addEventListener("input",()=>{ view.zoom=zoomR.value/100;
-  if(view.zoom===1){view.x=0;view.y=0;} applyView(); });
-brightR.addEventListener("input",()=>{ view.bright=+brightR.value; applyView(); });
-contR.addEventListener("input",()=>{ view.contrast=+contR.value; applyView(); });
-resetTools.addEventListener("click",resetView);
-
-let dragging=false,sx=0,sy=0,ox=0,oy=0;
-plate.addEventListener("pointerdown",e=>{
-  if(view.zoom<=1||!plate.classList.contains("loaded")) return;
-  dragging=true; sx=e.clientX; sy=e.clientY; ox=view.x; oy=view.y;
-  plate.classList.add("panning"); plate.setPointerCapture(e.pointerId);
-});
-plate.addEventListener("pointermove",e=>{
-  if(!dragging) return;
-  view.x=ox+(e.clientX-sx)/view.zoom; view.y=oy+(e.clientY-sy)/view.zoom; applyView();
-});
-["pointerup","pointercancel"].forEach(ev=>plate.addEventListener(ev,()=>{
-  dragging=false; plate.classList.remove("panning"); }));
-
-/* ===== inference ==================================================== */
-runBtn.addEventListener("click",async()=>{
-  if(!currentFile) return;
-  runBtn.disabled=true; runBtn.classList.add("busy");
-  runLabel.textContent = ttaIn.checked ? "Running 8× TTA" : "Running";
-  plate.classList.add("busy"); live.textContent="Screening running.";
-  try{
-    const data = backendLive ? await predictRemote() : await predictDemo();
-    mTime.textContent=new Date().toLocaleString();
-    if(data.gradcam){
-      camUrl=data.gradcam; tabCam.disabled=false; showView("cam");
-    }else{
-      camUrl=null; tabCam.disabled=true;
-      if(data.gradcam_error) toast("Grad-CAM failed: "+data.gradcam_error,"error");
-    }
-    const result=render(data);
-    printBtn.disabled=false; copyBtn.disabled=false;
-    pushHistory(result);
-  }catch(e){
-    toast("Screening failed: "+e.message,"error");
-    live.textContent="Screening failed.";
-  }finally{
-    runBtn.disabled=false; runBtn.classList.remove("busy");
-    runLabel.textContent="Run screening"; plate.classList.remove("busy");
-  }
-});
-
-async function predictRemote(){
-  const body=new FormData();
-  body.append("image",currentFile);
-  if(ageIn.value!=="") body.append("age",ageIn.value);
-  if(sexIn.value)      body.append("sex",sexIn.value);
-  body.append("site",siteIn.value||"unknown");
-  body.append("tta",ttaIn.checked?"true":"false");
-  body.append("gradcam",camIn.checked?"true":"false");
-  const r=await fetch(API_BASE+"/predict",{method:"POST",body});
-  if(!r.ok){
-    let m="server returned "+r.status+".";
-    try{ const j=await r.json(); if(j.error) m=j.error; }catch{}
-    throw new Error(m);
-  }
-  const d=await r.json();
-  if(typeof d.malignant_probability!=="number") throw new Error("unexpected response shape.");
-  if(typeof d.threshold==="number"){ THRESHOLD=d.threshold; placeThreshold(); }
-  return d;
-}
-
-/* Demo stand-in so the interface is presentable before the model is attached. */
-async function predictDemo(){
-  await new Promise(r=>setTimeout(r, ttaIn.checked?1400:700));
-  let seed=currentFile.size+[...currentFile.name].reduce((a,c)=>a+c.charCodeAt(0),0);
-  const nx=()=>{ seed=(seed*1103515245+12345)%2147483648; return seed/2147483648; };
-  const p=nx();
-  const raw=DX.map(()=>Math.pow(nx(),3)+0.01);
-  const t=raw.reduce((a,b)=>a+b,0);
-  return { malignant_probability:p, benign_probability:1-p, threshold:THRESHOLD,
-           prediction: p>=THRESHOLD?"malignant":"benign",
-           tta: ttaIn.checked?8:1, dx: raw.map(v=>v/t) };
-}
-
-/* ===== render ======================================================= */
-function render(d){
-  const p=d.malignant_probability;
-  const malignant = p >= THRESHOLD;
-
-  verdict.dataset.call = malignant?"malignant":"benign";
-  axis.dataset.call    = malignant?"malignant":"benign";
-  call.textContent = malignant ? "Malignant — refer for review" : "Benign";
-  callnum.hidden=false;
-  countUp(callnum,p*100);
-  requestAnimationFrame(()=>{ fill.style.width=(p*100)+"%"; });
-
-  const dist=Math.abs(p-THRESHOLD), notes=[];
-  if(dist<BORDERLINE) notes.push("Borderline: "+(dist*100).toFixed(1)
-    +" points from the decision threshold. Small input changes could flip this call.");
-  if(!malignant && p>=THRESHOLD*0.6) notes.push(
-    "Malignancy probability is elevated relative to the threshold despite the benign call.");
-  if(d.tta===1) notes.push("Single view — TTA off. The evaluated numbers used 8× TTA.");
-  if(!backendLive) notes.push("Demo data — no model attached. Do not present these as results.");
-  flag.dataset.level = notes.length?"review":"";
-  flag.textContent = notes.length ? notes.join(" ")
-    : "Confident margin from the decision threshold.";
-
-  let rows=[];
-  if(Array.isArray(d.dx)){
-    rows=DX.map((c,i)=>({...c,p:d.dx[i]||0})).sort((a,b)=>b.p-a.p);
-    diffBody.innerHTML=rows.map((r,i)=>`
-      <tr class="${i===0?"lead":""}" style="animation-delay:${i*40}ms">
-        <td class="code">${r.code}</td>
-        <td>${r.name}<div class="microbar"><i data-w="${(r.p*100).toFixed(2)}"></i></div></td>
-        <td class="tier"><span class="chip" data-tier="${r.tier}">${r.tier==="benign"?"Benign":"Malignant"}</span></td>
-        <td class="num">${(r.p*100).toFixed(2)}%</td>
-      </tr>`).join("");
-    requestAnimationFrame(()=>{
-      diffBody.querySelectorAll(".microbar i").forEach(b=>b.style.width=b.dataset.w+"%");
+  /* ── Theme ── */
+  function initTheme(){
+    const s=localStorage.getItem('ds_theme')||'dark';
+    document.documentElement.dataset.theme=s;
+    themeBtn.addEventListener('click',()=>{
+      const n=document.documentElement.dataset.theme==='dark'?'light':'dark';
+      document.documentElement.dataset.theme=n;
+      localStorage.setItem('ds_theme',n);
     });
-  }else{
-    diffBody.innerHTML=`<tr><td colspan="4" style="color:var(--muted);padding:14px 0">Auxiliary head not returned.</td></tr>`;
   }
 
-  params.innerHTML=
-    `<span>Model — ${backendLive?escapeHtml(modelName):"not attached"}</span>`+
-    `<span>Threshold — ${THRESHOLD.toFixed(3)} (${escapeHtml(thresholdSource)})</span>`+
-    `<span>TTA — ${d.tta}×</span>`+
-    `<span>Margin — ${(dist*100).toFixed(1)} pts</span>`;
-
-  live.textContent=(malignant?"Malignant":"Benign")+", probability "
-    +(p*100).toFixed(1)+" percent, threshold "+THRESHOLD.toFixed(3)+".";
-
-  lastResult={ ref:mRef.textContent, file:mFile.textContent, time:mTime.textContent,
-    p, malignant, threshold:THRESHOLD, tta:d.tta, rows, dx:d.dx,
-    age:ageIn.value, sex:sexIn.value, site:siteIn.value, cam:camUrl, img:imgUrl };
-  toast((malignant?"Malignant":"Benign")+" — p(malignant) "+(p*100).toFixed(1)+"%");
-  return lastResult;
-}
-
-function resetResult(){
-  verdict.removeAttribute("data-call"); axis.removeAttribute("data-call");
-  call.textContent="No screening yet"; callnum.hidden=true;
-  fill.style.width="0%";
-  flag.removeAttribute("data-level");
-  flag.textContent="Press Run screening to classify this image.";
-  diffBody.innerHTML=`<tr><td colspan="4" style="color:var(--muted);padding:14px 0">Awaiting screening.</td></tr>`;
-}
-
-/* ===== session ====================================================== */
-function pushHistory(r){
-  session.unshift({...r, id:r.ref+"-"+session.length});
-  if(session.length>MAX_HISTORY) session.pop();
-  drawHistory(); markActiveThumb(session[0].id);
-}
-function drawHistory(){
-  history.classList.toggle("on",session.length>0);
-  histCount.textContent=session.length+" screened";
-  strip.innerHTML=session.map(e=>`
-    <button class="thumb" data-id="${e.id}" title="${escapeHtml(e.file)} — ${(e.p*100).toFixed(1)}%">
-      <img src="${e.img}" alt=""><span class="tag" data-call="${e.malignant?"malignant":"benign"}"></span>
-    </button>`).join("");
-  strip.querySelectorAll(".thumb").forEach(b=>
-    b.addEventListener("click",()=>restore(b.dataset.id)));
-}
-function restore(id){
-  const e=session.find(x=>x.id===id); if(!e) return;
-  imgUrl=e.img; camUrl=e.cam||null;
-  showView("image");
-  preview.hidden=false; prompt.hidden=true;
-  plate.classList.add("loaded"); tools.classList.add("on"); resetView();
-  tabImage.disabled=false; tabCam.disabled=!camUrl;
-  meta.hidden=false;
-  mRef.textContent=e.ref; mTime.textContent=e.time; mFile.textContent=e.file; mRes.textContent="—";
-  ageIn.value=e.age||""; sexIn.value=e.sex||""; siteIn.value=e.site||"unknown";
-  render({ malignant_probability:e.p, threshold:e.threshold, tta:e.tta, dx:e.dx });
-  clearBtn.disabled=false; printBtn.disabled=false; copyBtn.disabled=false; runBtn.disabled=true;
-  markActiveThumb(id);
-}
-function markActiveThumb(id){
-  strip.querySelectorAll(".thumb").forEach(b=>b.classList.toggle("active",b.dataset.id===id));
-}
-
-/* ===== export ======================================================= */
-copyBtn.addEventListener("click",async()=>{
-  if(!lastResult) return;
-  const r=lastResult;
-  const text=[
-    "SKIN CANCER SCREENING — BENIGN VS MALIGNANT",
-    "Case ref: "+r.ref, "Assessed: "+r.time, "Source: "+r.file,
-    "Context: age "+(r.age||"unknown")+", sex "+(r.sex||"unknown")+", site "+(r.site||"unknown"),
-    "",
-    "Prediction: "+(r.malignant?"MALIGNANT":"BENIGN"),
-    "p(malignant): "+(r.p*100).toFixed(2)+"%",
-    "Threshold:    "+r.threshold.toFixed(3)+"  ("+thresholdSource+")",
-    "TTA:          "+r.tta+"x",
-    "",
-    ...(r.rows&&r.rows.length ? ["Auxiliary diagnosis head:",
-      ...r.rows.map(x=>"  "+x.code.padEnd(6)+(x.p*100).toFixed(2).padStart(6)+"%  "+x.name)] : []),
-    "",
-    backendLive?"Model: "+modelName:"DEMO DATA — no model attached",
-    "Screening aid for research. Not a diagnostic device."
-  ].join("\n");
-  try{ await navigator.clipboard.writeText(text); toast("Report copied to clipboard."); }
-  catch{ toast("Couldn't reach the clipboard. Use Save report instead.","error"); }
-});
-
-/* ===== helpers ====================================================== */
-function countUp(el,target){
-  if(matchMedia("(prefers-reduced-motion: reduce)").matches){
-    el.innerHTML=target.toFixed(1)+"<small>%</small>"; return;
+  /* ── Navigation ── */
+  function switchView(view){
+    const VM={dashboard:vDashboard,screening:vScreening,history:vHistory};
+    const NM={dashboard:navDash,screening:navScreen,history:navHist};
+    Object.values(VM).forEach(v=>v.classList.remove('active'));
+    Object.values(NM).forEach(b=>{b.classList.remove('active');b.setAttribute('aria-current','false')});
+    qsa('[data-mnav]',mobileDrawer).forEach(m=>m.classList.remove('active'));
+    if(VM[view]){VM[view].classList.add('active');NM[view].classList.add('active');NM[view].setAttribute('aria-current','page')}
+    const am=mobileDrawer.querySelector(`[data-mnav="${view}"]`);
+    if(am) am.classList.add('active');
+    if(view==='dashboard'||view==='history') renderTables();
+    closeMobile();
   }
-  const dur=520,t0=performance.now();
-  (function step(t){
-    const k=Math.min((t-t0)/dur,1), e=1-Math.pow(1-k,3);
-    el.innerHTML=(target*e).toFixed(1)+"<small>%</small>";
-    if(k<1) requestAnimationFrame(step);
-  })(t0);
-}
-function toast(msg,kind){
-  const el=document.createElement("div");
-  el.className="toast"; if(kind) el.dataset.kind=kind;
-  el.textContent=msg; toasts.appendChild(el);
-  setTimeout(()=>{ el.classList.add("out"); setTimeout(()=>el.remove(),260); },
-    kind==="error"?5600:3200);
-}
-function caseRef(){
-  const d=new Date(), pad=n=>String(n).padStart(2,"0");
-  return "SC-"+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())
-    +"-"+Math.floor(Math.random()*9000+1000);
-}
-function trim(s,n){ return s.length>n?s.slice(0,n-1)+"…":s; }
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>
-  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  navDash.addEventListener('click',()=>switchView('dashboard'));
+  navScreen.addEventListener('click',()=>switchView('screening'));
+  navHist.addEventListener('click',()=>switchView('history'));
+  dashNewBtn.addEventListener('click',()=>switchView('screening'));
+  viewHistBtn.addEventListener('click',()=>switchView('history'));
+  qsa('.brand').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();switchView('dashboard')}));
 
-applyView();
+  /* Mobile nav */
+  hamBtn.addEventListener('click',openMobile);
+  mobileClose.addEventListener('click',closeMobile);
+  mobileOverlay.addEventListener('click',closeMobile);
+  qsa('[data-mnav]',mobileDrawer).forEach(btn=>btn.addEventListener('click',()=>switchView(btn.dataset.mnav)));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMobile()});
+
+  function openMobile(){
+    mobileOverlay.style.display='block';
+    requestAnimationFrame(()=>{mobileOverlay.classList.add('open');mobileDrawer.classList.add('open')});
+    mobileDrawer.setAttribute('aria-hidden','false');
+    hamBtn.setAttribute('aria-expanded','true');
+    mobileClose.focus();
+  }
+  function closeMobile(){
+    mobileOverlay.classList.remove('open');mobileDrawer.classList.remove('open');
+    mobileDrawer.setAttribute('aria-hidden','true');hamBtn.setAttribute('aria-expanded','false');
+    setTimeout(()=>{mobileOverlay.style.display='none'},250);
+  }
+
+  /* ── IndexedDB ── */
+  function openDB(){
+    if(!window.indexedDB){loadLS();return}
+    const req=indexedDB.open(DB_NAME,DB_VER);
+    req.onupgradeneeded=e=>{
+      const idb=e.target.result;
+      if(!idb.objectStoreNames.contains(STORE)){
+        const s=idb.createObjectStore(STORE,{keyPath:'id'});
+        s.createIndex('timestamp','timestamp');s.createIndex('prediction','prediction');
+      }
+    };
+    req.onsuccess=e=>{db=e.target.result;loadDB()};
+    req.onerror=()=>loadLS();
+  }
+  function loadDB(){
+    try{
+      const req=db.transaction([STORE],'readonly').objectStore(STORE).getAll();
+      req.onsuccess=()=>{
+        let r=req.result||[];
+        if(!r.length){try{r=JSON.parse(localStorage.getItem('ds_recs')||'[]')}catch(_){}}
+        recs=r.sort((a,b)=>new Date(b.createdAt||b.timestamp)-new Date(a.createdAt||a.timestamp));
+        updateUI();
+      };
+      req.onerror=()=>loadLS();
+    }catch(_){loadLS()}
+  }
+  function loadLS(){try{recs=JSON.parse(localStorage.getItem('ds_recs')||'[]')}catch(_){recs=[]}updateUI()}
+
+  function saveRec(rec){
+    const i=recs.findIndex(r=>r.id===rec.id);
+    if(i>=0)recs[i]=rec;else recs.unshift(rec);
+    try{localStorage.setItem('ds_recs',JSON.stringify(recs.slice(0,80)))}catch(_){}
+    if(db){try{db.transaction([STORE],'readwrite').objectStore(STORE).put(rec)}catch(_){}}
+    updateUI();
+  }
+  function clearAll(){
+    if(!confirm('Clear all local screening records? This cannot be undone.'))return;
+    recs=[];localStorage.removeItem('ds_recs');
+    if(db){try{db.transaction([STORE],'readwrite').objectStore(STORE).clear()}catch(_){}}
+    updateUI();toast('All records cleared.','success');
+  }
+  clearBtn.addEventListener('click',clearAll);
+  clearBtn2.addEventListener('click',clearAll);
+
+  /* ── UI update ── */
+  function updateUI(){
+    const tot=recs.length,nb=recs.filter(r=>nrm(r.prediction)==='benign').length,nm=recs.filter(r=>nrm(r.prediction)==='malignant').length;
+    navBadge.textContent=mBadge.textContent=tot;
+    dTotal.textContent=tot;dBenign.textContent=nb;dMalignant.textContent=nm;
+    dBenignPct.textContent=tot?`${((nb/tot)*100).toFixed(1)}% of total`:'0.0% of total';
+    dMalignantPct.textContent=tot?`${((nm/tot)*100).toFixed(1)}% of total`:'0.0% of total';
+    renderTables();
+  }
+
+  function renderTables(){
+    renderTBody(dTableBody,getFiltered(dFilt,dSrch));
+    renderTBody(hTableBody,getFiltered(hFilt,hSrch));
+  }
+
+  function getFiltered(filt,srch){
+    return recs.filter(r=>{
+      if(filt!=='all'&&nrm(r.prediction)!==filt)return false;
+      if(srch){const q=srch.toLowerCase();return(r.id||'').toLowerCase().includes(q)||(r.filename||'').toLowerCase().includes(q)}
+      return true;
+    });
+  }
+
+  function renderTBody(tbody,filtered){
+    if(!filtered.length){
+      tbody.innerHTML=`<tr class="empty-row"><td colspan="7">${recs.length?'No records match the current filter.':'No records yet. Complete a screening to populate history.'}</td></tr>`;
+      return;
+    }
+    tbody.innerHTML=filtered.map(rec=>{
+      const isMal=nrm(rec.prediction)==='malignant';
+      const bCls=isMal?'badge-malignant':'badge-benign',bLbl=isMal?'MALIGNANT':'BENIGN';
+      const pM=((rec.malignant_probability??0)*100).toFixed(2);
+      const pB=((rec.benign_probability??(1-(rec.malignant_probability??0)))*100).toFixed(2);
+      const thumb=rec.imageDataUrl||(isMal?SVG_MAL:SVG_BEN);
+      return`<tr>
+        <td class="cell-id">${esc(rec.id)}</td>
+        <td class="cell-ts">${esc(rec.timestamp)}</td>
+        <td><div class="cell-thumb"><img class="thumb-img" src="${esc(thumb)}" alt="Lesion thumbnail"><span title="${esc(rec.filename)}">${esc(trunc(rec.filename,28))}</span></div></td>
+        <td><span class="badge ${bCls}"><span class="badge-dot" aria-hidden="true"></span>${bLbl}</span></td>
+        <td class="cell-prob">${pB}%</td>
+        <td class="cell-prob${isMal?' prob-hi':''}">${pM}%</td>
+        <td style="text-align:right"><button class="action-link-btn" data-vid="${esc(rec.id)}">View Report</button></td>
+      </tr>`;
+    }).join('');
+    tbody.querySelectorAll('[data-vid]').forEach(btn=>btn.addEventListener('click',()=>viewRecord(btn.dataset.vid)));
+  }
+
+  /* ── Dashboard filters ── */
+  qsa('.filter-btn',$('vDashboard')).forEach(btn=>btn.addEventListener('click',()=>{
+    dFilt=btn.dataset.filter;
+    qsa('.filter-btn',$('vDashboard')).forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');renderTables();
+  }));
+  dSearch.addEventListener('input',e=>{dSrch=e.target.value.trim();renderTables()});
+
+  /* ── History filters ── */
+  [hfAll,hfBenign,hfMalignant].forEach(btn=>btn.addEventListener('click',()=>{
+    hFilt=btn.dataset.filter;[hfAll,hfBenign,hfMalignant].forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTables();
+  }));
+  hSearch.addEventListener('input',e=>{hSrch=e.target.value.trim();renderTables()});
+
+  /* ── Backend health ── */
+  async function checkHealth(){
+    try{
+      const res=await fetch('/health',{cache:'no-store'});
+      if(!res.ok)throw new Error('not ok');
+      const d=await res.json();
+      if(typeof d.threshold==='number')threshold=d.threshold;
+      statusPill.dataset.status='connected';
+      statusText.textContent=`Backend Ready (t=${threshold.toFixed(3)})`;
+    }catch(_){
+      statusPill.dataset.status='error';
+      statusText.textContent=`Standby (t=${threshold.toFixed(3)})`;
+    }
+    updateThrUI(threshold);
+  }
+  function updateThrUI(thr){
+    const pct=(thr*100).toFixed(1);
+    thrPin.style.left=`${pct}%`;
+    thrChip.textContent=`Threshold: ${thr.toFixed(3)} (${pct}%)`;
+    thrCallout.textContent=thr.toFixed(3);
+  }
+
+  /* ── File handling ── */
+  dropZone.addEventListener('click',()=>{if(!curFile&&!viewingHist)fileInput.click()});
+  dropZone.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();if(!curFile&&!viewingHist)fileInput.click()}});
+  dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('drag-over')});
+  dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('drag-over');if(e.dataTransfer.files?.[0])handleFile(e.dataTransfer.files[0])});
+  fileInput.addEventListener('change',e=>{if(e.target.files?.[0])handleFile(e.target.files[0])});
+
+  function handleFile(file){
+    const ext=file.name.split('.').pop().toLowerCase();
+    if(!['image/png','image/jpeg'].includes(file.type)&&!['png','jpg','jpeg'].includes(ext)){toast('Unsupported format. Use PNG or JPG.','error');return}
+    resetHist();curFile=file;curObjUrl=URL.createObjectURL(file);previewImg.src=curObjUrl;
+    const rd=new FileReader();rd.onload=re=>{curDataUrl=re.target.result};rd.readAsDataURL(file);
+    previewImg.onload=()=>{
+      dzContent.style.display='none';previewWrap.classList.add('show');imgToolbar.classList.add('show');
+      fileBadge.textContent=`${file.name} (${previewImg.naturalWidth}×${previewImg.naturalHeight})`;
+      analyzeBtn.disabled=uploadAgainBtn.disabled=removeBtn.disabled=false;
+      resetTransforms();hideError();
+    };
+    previewImg.onerror=()=>{toast('Image could not be decoded.','error');clearImg()};
+  }
+
+  function ensureDataUrl(file){
+    return new Promise(res=>{
+      if(!file)return res(null);
+      if(curDataUrl)return res(curDataUrl);
+      const rd=new FileReader();
+      rd.onload=e=>{curDataUrl=e.target.result;res(curDataUrl)};
+      rd.onerror=()=>res(null);
+      rd.readAsDataURL(file);
+    });
+  }
+
+  function clearImg(){
+    if(curObjUrl){URL.revokeObjectURL(curObjUrl);curObjUrl=null}
+    curFile=curDataUrl=null;fileInput.value='';
+    previewImg.removeAttribute('src');previewWrap.classList.remove('show');
+    dzContent.style.display='';imgToolbar.classList.remove('show');
+    fileBadge.textContent='No file loaded';
+    analyzeBtn.disabled=uploadAgainBtn.disabled=removeBtn.disabled=true;
+    resetTransforms();
+    hideError();hideResult();
+  }
+  removeBtn.addEventListener('click',clearImg);
+  uploadAgainBtn.addEventListener('click',()=>{clearImg();fileInput.click()});
+
+  function applyTransforms(){
+    const z=zoomRange.value/100,b=brightRange.value,c=contrastRange.value;
+    previewImg.style.transform=`scale(${z})`;previewImg.style.filter=`brightness(${b}%) contrast(${c}%)`;
+    zoomVal.textContent=`${z.toFixed(1)}×`;brightVal.textContent=`${b}%`;contrastVal.textContent=`${c}%`;
+  }
+  function resetTransforms(){zoomRange.value=brightRange.value=contrastRange.value=100;applyTransforms()}
+  [zoomRange,brightRange,contrastRange].forEach(r=>r.addEventListener('input',applyTransforms));
+
+  /* ── Results ── */
+  function showResult(data,isTest=false){
+    hideError();emptyState.style.display='none';
+    const thr=typeof data.threshold==='number'?data.threshold:threshold;
+    threshold=thr;updateThrUI(thr);
+    let pM=clamp(typeof data.malignant_probability==='number'?data.malignant_probability:0);
+    let pB=clamp(typeof data.benign_probability==='number'?data.benign_probability:1-pM);
+    const raw=nrm(data.prediction);
+    const isMal=raw?raw==='malignant':(pM>=thr);
+    const label=isMal?'MALIGNANT':'BENIGN';
+    const pMp=(pM*100).toFixed(2),pBp=(pB*100).toFixed(2);
+    verdictCard.dataset.cls=isMal?'malignant':'benign';
+    vBadge.textContent=label;
+    vNote.textContent=isMal?'Positive for malignancy. Lesion probability meets or exceeds the decision threshold. Immediate dermatological review indicated.':'Negative for malignancy. Lesion probability falls strictly below the decision threshold.';
+    pMalignant.innerHTML=`${pMp}<span class="prob-unit">%</span>`;
+    pBenign.innerHTML=`${pBp}<span class="prob-unit">%</span>`;
+    barFill.style.width=`${pMp}%`;
+    const sid=data.screening_id||data.id||genId();
+    vId.textContent=mId.textContent=sid;
+    mTs.textContent=data.timestamp||new Date().toLocaleString();
+    mFile.textContent=data.filename||(curFile?curFile.name:'—');
+    mThr.textContent=`${thr.toFixed(3)} (${(thr*100).toFixed(1)}%)`;
+    mPat.textContent=data.patient_meta||getPatSummary();
+    mMode.textContent=data.tta?`${data.tta}× TTA`:(ttaChk.checked?'8× TTA':'Single view');
+    testBanner.classList.toggle('show',isTest);
+    resultArea.classList.add('show');
+    lastRes={label,isMal,pMp,pBp,thr,sid,filename:mFile.textContent,timestamp:mTs.textContent,meta:mPat.textContent,isTest};
+  }
+  function hideResult(){resultArea.classList.remove('show');testBanner.classList.remove('show');emptyState.style.display=''}
+  function hideError(){errorCard.classList.remove('show')}
+  function showError(title,msg,hint){
+    hideResult();errTitle.textContent=title;errMsg.textContent=msg;errHint.textContent=hint||'Ensure app.py is running with trained model weights.';
+    errorCard.classList.add('show');emptyState.style.display='none';
+  }
+
+  exitHistBtn.addEventListener('click',()=>{
+    resetHist();
+    hideResult();
+    if(curFile&&curObjUrl){
+      previewImg.src=curObjUrl;
+      fileBadge.textContent=`${curFile.name} (${previewImg.naturalWidth}×${previewImg.naturalHeight})`;
+      analyzeBtn.disabled=uploadAgainBtn.disabled=removeBtn.disabled=false;
+    } else {
+      clearImg();
+    }
+  });
+  function resetHist(){viewingHist=false;histBanner.classList.remove('show')}
+
+  function viewRecord(id){
+    const rec=recs.find(r=>r.id===id);if(!rec){toast('Record not found.','error');return}
+    viewingHist=true;histBanner.classList.add('show');
+    if(rec.imageDataUrl){
+      previewImg.src=rec.imageDataUrl;dzContent.style.display='none';previewWrap.classList.add('show');imgToolbar.classList.add('show');
+      fileBadge.textContent=`${rec.filename} (Archived)`;uploadAgainBtn.disabled=removeBtn.disabled=false;
+    }
+    showResult({id:rec.id,screening_id:rec.id,prediction:rec.prediction,malignant_probability:rec.malignant_probability,benign_probability:rec.benign_probability,threshold:rec.threshold,tta:rec.tta,filename:rec.filename,timestamp:rec.timestamp,patient_meta:rec.patient_meta},false);
+    analyzeBtn.disabled=true;
+    switchView('screening');toast(`Viewing: ${rec.id}`,'success');
+  }
+
+  /* ── Analyze ── */
+  analyzeBtn.addEventListener('click',async()=>{
+    if(!curFile)return;
+    if(pAge.value.trim()){const a=parseFloat(pAge.value);if(isNaN(a)||a<0||a>120){toast('Enter a valid age (0–120).','error');pAge.focus();return}}
+    const sid=genId(),ts=new Date().toLocaleString();
+    analyzeBtn.disabled=uploadAgainBtn.disabled=removeBtn.disabled=true;
+    procOverlay.classList.add('show');procLabel.textContent=ttaChk.checked?'Running 8× TTA Inference…':'Analyzing Lesion…';
+    hideError();
+    try{
+      const fd=new FormData();
+      fd.append('image',curFile);
+      if(pAge.value.trim())fd.append('age',pAge.value.trim());
+      if(pSex.value)fd.append('sex',pSex.value);
+      fd.append('site',pSite.value||'unknown');fd.append('tta',ttaChk.checked?'true':'false');fd.append('gradcam',gcChk.checked?'true':'false');
+      const res=await fetch('/predict',{method:'POST',body:fd});
+      if(!res.ok){let em=`HTTP ${res.status}`;try{const d=await res.json();if(d.error)em=d.error}catch(_){}throw new Error(em)}
+      const result=await res.json();
+      if(typeof result.prediction!=='string'||typeof result.malignant_probability!=='number')throw new Error('Backend response missing required fields.');
+      const imgData=curDataUrl||await ensureDataUrl(curFile);
+      const rec={id:sid,screening_id:sid,timestamp:ts,createdAt:new Date().toISOString(),filename:curFile.name,prediction:nrm(result.prediction),benign_probability:result.benign_probability,malignant_probability:result.malignant_probability,threshold:result.threshold,tta:result.tta,patient_meta:getPatSummary(),imageDataUrl:imgData};
+      showResult(rec,false);saveRec(rec);toast(`Saved: ${sid}`,'success');
+    }catch(err){showError('Screening Request Failed',err.message,'Ensure app.py is running with trained model weights.');toast(`Failed: ${err.message}`,'error')}
+    finally{procOverlay.classList.remove('show');analyzeBtn.disabled=uploadAgainBtn.disabled=removeBtn.disabled=false}
+  });
+
+  /* ── Test data ── */
+  testBenign.addEventListener('click',async()=>{
+    const tid=genId(),trec={id:tid,screening_id:tid,timestamp:new Date().toLocaleString(),createdAt:new Date().toISOString(),filename:curFile?curFile.name:'test_benign.jpg',prediction:'benign',benign_probability:.8575,malignant_probability:.1425,threshold,tta:8,patient_meta:getPatSummary(),imageDataUrl:curDataUrl||SVG_BEN};
+    if(!curFile)loadTestImg(SVG_BEN,'test_benign.jpg (Test)');
+    showResult(trec,true);saveRec(trec);toast(`Test saved: ${tid}`,'success');
+  });
+  testMalignant.addEventListener('click',async()=>{
+    const tid=genId(),trec={id:tid,screening_id:tid,timestamp:new Date().toLocaleString(),createdAt:new Date().toISOString(),filename:curFile?curFile.name:'test_malignant.jpg',prediction:'malignant',benign_probability:.1160,malignant_probability:.8840,threshold,tta:8,patient_meta:getPatSummary(),imageDataUrl:curDataUrl||SVG_MAL};
+    if(!curFile)loadTestImg(SVG_MAL,'test_malignant.jpg (Test)');
+    showResult(trec,true);saveRec(trec);toast(`Test saved: ${tid}`,'success');
+  });
+  function loadTestImg(src,lbl){
+    previewImg.src=src;dzContent.style.display='none';previewWrap.classList.add('show');imgToolbar.classList.add('show');
+    fileBadge.textContent=lbl;uploadAgainBtn.disabled=removeBtn.disabled=false;
+  }
+
+  /* ── Report export ── */
+  copyBtn.addEventListener('click',async()=>{
+    if(!lastRes)return;
+    const d=lastRes,txt=[
+      '══════════════════════════════════════════════════',
+      '  DERMASCAN AI — SKIN LESION SCREENING REPORT',
+      '══════════════════════════════════════════════════',
+      `  Screening ID:       ${d.sid}`,
+      `  Screening Time:     ${d.timestamp}`,
+      `  Uploaded Filename:  ${d.filename}`,
+      `  Patient Context:    ${d.meta}`,
+      '──────────────────────────────────────────────────',
+      `  AUTHORITATIVE CALL: ${d.label}`,
+      `  Malignant Prob:     ${d.pMp}%`,
+      `  Benign Prob:        ${d.pBp}%`,
+      `  Decision Threshold: ${d.thr.toFixed(3)} (${(d.thr*100).toFixed(1)}%)`,
+      '──────────────────────────────────────────────────',
+      d.isTest?'  STATUS: CONTROLLED FRONTEND TEST DATA':'  STATUS: VERIFIED MODEL INFERENCE RECORD',
+      '  DISCLAIMER: AI result for research only. Not a confirmed medical diagnosis.',
+      '══════════════════════════════════════════════════'
+    ].join('\n');
+    try{await navigator.clipboard.writeText(txt);toast('Report copied to clipboard.','success')}
+    catch(_){toast('Clipboard access denied.','error')}
+  });
+  printBtn.addEventListener('click',()=>window.print());
+
+  /* ── Utils ── */
+  function nrm(s){return String(s||'').toLowerCase().trim()}
+  function clamp(v){return Math.max(0,Math.min(1,v))}
+  function genId(){
+    const d=new Date(),ymd=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+    let h='';
+    if(window.crypto?.getRandomValues){const b=new Uint8Array(4);window.crypto.getRandomValues(b);h=Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase()}
+    else{h=Math.floor(Math.random()*0xFFFFFFFF).toString(16).padStart(8,'0').toUpperCase()}
+    return`SC-${ymd}-${h}`;
+  }
+  function getPatSummary(){
+    const p=[];
+    if(pAge.value.trim())p.push(`Age: ${pAge.value.trim()} yrs`);
+    if(pSex.value)p.push(`Sex: ${pSex.value.charAt(0).toUpperCase()+pSex.value.slice(1)}`);
+    if(pSite.value&&pSite.value!=='unknown')p.push(`Site: ${pSite.value}`);
+    return p.length?p.join(' · '):'Not provided';
+  }
+  function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function trunc(s,n){return s&&s.length>n?s.substring(0,n-1)+'…':(s||'')}
+  function toast(msg,type='success'){
+    const el=document.createElement('div');
+    el.className=`toast${type==='error'?' toast-error':type==='success'?' toast-success':''}`;
+    el.setAttribute('role','status');
+    const icon=type==='error'?'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>':'<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+    el.innerHTML=icon+esc(msg);
+    toastWrap.appendChild(el);
+    const delay=type==='error'?5000:3000;
+    setTimeout(()=>{el.style.transition='opacity .22s ease,transform .22s ease';el.style.opacity='0';el.style.transform='translateY(8px)';setTimeout(()=>el.remove(),230)},delay);
+  }
+})();
 </script>
 </body>
 </html>
